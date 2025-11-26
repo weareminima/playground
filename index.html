@@ -60,7 +60,7 @@
 
             /* --- IMAGEN DE FONDO RECUPERADA --- */
             background-image: url('Recursos/Background.jpg');
-            background-size: 100% auto;
+            background-size: min(100%, 600px) auto;
             /* Ancho completo, mantiene proporción */
             background-repeat: no-repeat;
             background-position: top center;
@@ -93,8 +93,10 @@
         .screen {
             position: fixed;
             top: 0;
-            left: 0;
+            left: 50%;
+            transform: translateX(-50%);
             width: 100%;
+            max-width: 600px;
             height: 100%;
             z-index: 10;
             display: flex;
@@ -116,7 +118,7 @@
         }
 
         #screen-connect {
-            justify-content: center;
+            justify-content: flex-end;
         }
 
         #screen-game {
