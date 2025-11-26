@@ -477,16 +477,37 @@
         }
 
         .word-zone-container {
-            background: var(--primary-10);
-            border: 2px solid var(--primary-05);
-            border-radius: var(--radius-card);
-            padding: 10px;
-            min-height: 80px;
+            background: rgba(0, 199, 252, 0.1);
+            border: 2px solid rgba(0, 199, 252, 0.05);
+            border-radius: 20px;
+            padding: 8px;
+            height: 56px;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             margin-bottom: 24px;
+            transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s, border-color 0.3s;
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+            flex-wrap: nowrap;
+            /* Prevent wrapping */
+        }
+
+        .container-win {
+            background: rgba(0, 234, 113, 0.1) !important;
+            border-color: rgba(0, 234, 113, 0.05) !important;
+        }
+
+        .container-lose {
+            background: rgba(255, 95, 34, 0.1) !important;
+            border-color: rgba(255, 95, 34, 0.05) !important;
+        }
+
+        .container-draw {
+            background: rgba(255, 185, 0, 0.1) !important;
+            border-color: rgba(255, 185, 0, 0.05) !important;
         }
 
         .word-zone {
@@ -498,16 +519,22 @@
         }
 
         .word-zone .tile {
-            width: 34px;
-            height: 48px;
-            font-size: 20px;
-            border-radius: var(--radius-tile-sm);
-            box-shadow: 0 3px 0 #009ec9;
+            width: 32px;
+            height: 40px;
+            font-size: 24px;
+            border-radius: 12px;
+            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4);
+            background-color: var(--primary);
+            color: #000;
+        }
+
+        .word-zone .tile:hover {
+            background-color: rgba(0, 199, 252, 0.6);
         }
 
         .word-zone .tile:active {
             transform: translateY(3px);
-            box-shadow: none;
+            box-shadow: inset 0 -2px 0 rgba(15, 25, 30, 0.4);
         }
 
         .word-result-row {
@@ -516,14 +543,26 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-bottom: 0;
+
+            /* Container styles applied here too */
+            background: rgba(0, 199, 252, 0.1);
+            border: 2px solid rgba(0, 199, 252, 0.05);
+            border-radius: 20px;
+            padding: 8px;
+            width: auto;
+            display: inline-flex;
+            min-height: 56px;
+            align-items: center;
         }
 
         .word-result-row .tile {
-            width: 34px;
-            height: 48px;
-            font-size: 20px;
-            border-radius: var(--radius-tile-sm);
-            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+            width: 32px;
+            height: 40px;
+            font-size: 24px;
+            border-radius: 12px;
+            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4);
+            background-color: var(--primary);
+            color: #000;
         }
 
         .pool-zone {
@@ -701,17 +740,19 @@
 
         .tile.success {
             animation: winExplosion 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            background-color: #00EA71 !important;
+            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4) !important;
         }
 
         .tile.fail {
-            background-color: var(--danger);
-            box-shadow: 0 3px 0 var(--danger-dark);
+            background-color: #FF5F22 !important;
+            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4) !important;
             color: #fff;
         }
 
         .tile.draw {
-            background-color: var(--warning);
-            box-shadow: 0 3px 0 var(--warning-dark);
+            background-color: #FFB900 !important;
+            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4) !important;
             color: #000;
             animation: drawHighlight 0.5s ease-in-out forwards;
         }
@@ -1064,11 +1105,28 @@
         }
 
         function submitWord(forced, wordStr = "") {
-            state.myWord = wordStr; const btn = document.getElementById('btn-action'); btn.disabled = true; btn.innerText = "Enviado";
+            state.myWord = wordStr;
+            const btn = document.getElementById('btn-action');
+            btn.disabled = true;
+            btn.innerText = "Esperando...";
+
+            // Clear pool to avoid stuck hover states
             document.getElementById('pool-zone').innerHTML = '';
 
             if (state.mode === 'MULTI' && !state.oppWord) btn.innerText = `Esperando a ${state.oppName}...`;
-            if (state.mode === 'MULTI') { sendData({ type: 'SUBMIT', word: wordStr }); checkEndRound(); }
+            if (state.mode === 'MULTI') {
+                // Shrink container animation for MULTI
+                const container = document.querySelector('.word-zone-container');
+                const tiles = document.querySelectorAll('#word-zone .tile');
+                const tileWidth = 32;
+                const tileGap = 4;
+                const containerPadding = 16;
+                const contentWidth = (tiles.length * tileWidth) + ((tiles.length - 1) * tileGap) + containerPadding;
+                container.style.width = `${contentWidth}px`;
+
+                sendData({ type: 'SUBMIT', word: wordStr });
+                checkEndRound();
+            }
         }
 
         function checkEndRound() { if (state.myWord !== null && state.oppWord !== null) { clearInterval(timerId); finishRound(); } }
@@ -1139,21 +1197,30 @@
             const title = document.getElementById('res-title');
             const subtitle = document.getElementById('res-subtitle');
 
+            // Reset opacities if they were changed by previous animation attempts
+            [icon, title, subtitle].forEach(el => el.style.opacity = '1');
+
             if (type === 'WIN') {
                 icon.innerText = "🎉"; title.innerText = "¡Has ganado!";
                 subtitle.innerText = `${state.oppName} ha perdido con:`;
                 renderResultTiles('res-my-word', state.myWord, 'success');
                 renderResultTiles('res-opp-word', state.oppWord, 'fail');
+                document.getElementById('res-my-word').className = 'word-result-row container-win';
+                document.getElementById('res-opp-word').className = 'word-result-row container-lose';
             } else if (type === 'LOSE') {
                 icon.innerText = "😭"; title.innerText = "Oh... ¡has perdido!";
                 subtitle.innerText = `${state.oppName} ha ganado con:`;
                 renderResultTiles('res-my-word', state.myWord, 'fail');
                 renderResultTiles('res-opp-word', state.oppWord, 'success');
+                document.getElementById('res-my-word').className = 'word-result-row container-lose';
+                document.getElementById('res-opp-word').className = 'word-result-row container-win';
             } else {
                 icon.innerText = "🤝"; title.innerText = "¡Habéis empatado!";
                 subtitle.innerText = `${state.oppName} ha puesto:`;
                 renderResultTiles('res-my-word', state.myWord, 'draw');
                 renderResultTiles('res-opp-word', state.oppWord, 'draw');
+                document.getElementById('res-my-word').className = 'word-result-row container-draw';
+                document.getElementById('res-opp-word').className = 'word-result-row container-draw';
             }
         }
 
