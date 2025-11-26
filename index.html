@@ -1110,16 +1110,46 @@
         }
 
         function triggerRematch() { if (state.mode === 'SOLO') hostGameLogic(); else { if (state.role === 'HOST') hostGameLogic(); else sendData({ type: 'REMATCH' }); } }
-        function initPeer() { if (peer) return; peer = new Peer(null, { debug: 1 }); peer.on('open', (id) => document.getElementById('my-code').innerText = id); peer.on('connection', (c) => { state.role = 'HOST'; setupConn(c); }); }
-        function joinGame() { const code = document.getElementById('friend-code').value; if (!code) return; state.role = 'GUEST'; setupConn(peer.connect(code)); }
+        function initPeer() {
+            if (peer) return;
+            const peerConfig = {
+                debug: 1,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                        { urls: 'stun:stun3.l.google.com:19302' },
+                        { urls: 'stun:stun4.l.google.com:19302' },
+                    ]
+                }
+            };
+            peer = new Peer(null, peerConfig);
+            peer.on('open', (id) => document.getElementById('my-code').innerText = id);
+            peer.on('connection', (c) => { state.role = 'HOST'; setupConn(c); });
+            peer.on('error', (err) => showToast("Error: " + (err.type === 'peer-unavailable' ? 'Rival no encontrado' : err.type)));
+        }
+        function joinGame() {
+            const code = document.getElementById('friend-code').value.trim();
+            if (!code) return showToast("Introduce un código");
+            state.role = 'GUEST';
+            showToast("Conectando...");
+            setupConn(peer.connect(code));
+        }
         function setupConn(c) {
-            conn = c; conn.on('open', () => conn.send({ type: 'HELLO', name: state.myName }));
+            conn = c;
+            const sendHello = () => conn.send({ type: 'HELLO', name: state.myName });
+            if (conn.open) sendHello();
+            else conn.on('open', sendHello);
+
             conn.on('data', (d) => {
                 if (d.type === 'HELLO') { state.oppName = d.name; startGameUI(); if (state.role === 'HOST') setTimeout(hostGameLogic, 500); }
                 if (d.type === 'NEW_GAME') startRound(d.letters);
                 if (d.type === 'SUBMIT') { state.oppWord = d.word; checkEndRound(); if (state.myWord) document.getElementById('btn-action').innerText = "¡Rival listo!"; }
                 if (d.type === 'REMATCH') hostGameLogic();
             });
+            conn.on('error', (err) => showToast("Error conexión: " + err));
+            conn.on('close', () => showToast("Conexión cerrada"));
         }
         function sendData(d) { if (conn && conn.open) conn.send(d); }
         function randChar(str) { return str.charAt(Math.floor(Math.random() * str.length)); }
