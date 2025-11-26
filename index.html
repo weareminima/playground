@@ -107,7 +107,11 @@
         }
 
         /* Intro & Connect: Alineados abajo con degradado */
-        #screen-intro,
+        #screen-intro {
+            justify-content: flex-end;
+            background: transparent;
+        }
+
         #screen-connect {
             justify-content: flex-end;
             /* Degradado para que el texto se lea sobre la imagen */
@@ -130,10 +134,12 @@
 
         /* Logo */
         .logo-svg {
-            width: 260px;
+            width: 100%;
+            padding: 0 32px;
             height: auto;
             margin-bottom: 32px;
             align-self: center;
+            box-sizing: border-box;
         }
 
         .logo-game-svg {
@@ -168,26 +174,37 @@
         .intro-text {
             margin-bottom: 16px;
             text-align: center;
+            font-size: 16px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         /* Inputs */
         input[type="text"] {
-            background: var(--input-bg);
-            border: 1px solid #333;
-            color: white;
+            background: transparent;
+            box-shadow: none;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
             height: 56px;
             border-radius: var(--radius-btn);
             font-family: var(--font);
-            font-size: 1rem;
+            font-variation-settings: 'ROND' 100;
+            font-size: 18px;
             text-align: center;
             width: 100%;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
             outline: none;
             transition: border-color 0.2s;
         }
 
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            opacity: 1;
+        }
+
+        input[type="text"]:hover,
         input[type="text"]:focus {
-            border-color: var(--primary);
+            border-color: var(--primary) !important;
         }
 
         /* Botones */
@@ -203,6 +220,7 @@
             border-radius: var(--radius-btn);
             border: none;
             font-family: var(--font);
+            font-variation-settings: 'ROND' 100;
             font-weight: 600;
             font-size: 18px;
             cursor: pointer;
@@ -264,21 +282,65 @@
             margin-bottom: 0;
         }
 
-        /* Código ID */
-        .code-box {
-            background: var(--primary-10);
-            border: 1px solid var(--primary);
-            border-radius: var(--radius-btn);
-            height: 56px;
+        /* Código ID - Legacy/Updated */
+        .code-wrapper {
+            background: rgba(0, 199, 252, 0.05);
+            border-radius: 24px;
+            padding: 8px;
+            margin-top: 8px;
+            width: 100%;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
+            flex-direction: column;
+        }
+
+        .code-display {
             font-family: monospace;
+            color: var(--primary);
             font-size: 14px;
-            margin: 10px 0;
+            text-align: center;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            word-break: break-all;
+            padding: 0 10px;
+        }
+
+        .btn-copy {
+            background-color: var(--primary-20);
+            color: var(--white);
+            box-shadow: inset 0 -6px 0 rgba(16, 16, 18, 0.2);
+            border: none;
+            border-radius: 16px;
+            height: 56px;
+            font-family: var(--font);
+            font-weight: 500;
+            font-size: 16px;
             cursor: pointer;
             width: 100%;
+            transition: transform 0.1s;
+        }
+
+        .btn-copy:active {
+            transform: scale(0.98);
+        }
+
+        /* Connect Screen Specifics */
+        #screen-connect h2 {
+            font-size: 40px;
+            font-weight: 500;
+            margin-bottom: 32px;
+        }
+
+        .connect-instruction {
+            font-size: 16px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        #friend-code {
+            margin-bottom: 8px;
         }
 
         .divider {
@@ -286,7 +348,8 @@
             align-items: center;
             width: 100%;
             color: #666;
-            font-size: 0.8rem;
+            font-size: 16px;
+            font-weight: 400;
             margin: 20px 0;
         }
 
@@ -739,7 +802,7 @@
     <div id="screen-intro" class="screen">
         <div style="flex-grow: 1;"></div>
         <div class="logo-svg" id="intro-logo-container"></div>
-        <p class="intro-text">Introduce tu nombre para empezar :)</p>
+        <p class="intro-text">Introduce tu nombre para empezar</p>
         <input type="text" id="username" placeholder="Tu nombre" maxlength="10">
         <div class="btn-container">
             <button class="btn btn-primary btn-full" onclick="initMode('MULTI')">Duelo online</button>
@@ -749,11 +812,16 @@
 
     <div id="screen-connect" class="screen hidden">
         <h2>Duelo online</h2>
-        <p class="text-white" style="margin-bottom: 20px;">Conecta con tu rival</p>
-        <p class="text-small" style="margin-bottom: 5px;">Envíale este código</p>
-        <div id="my-code" class="code-box" onclick="copyCode()">Cargando ID...</div>
+        <p class="connect-instruction">Conecta con tu rival enviándole este código</p>
+
+        <div class="code-wrapper">
+            <div id="my-code" class="code-display">Cargando ID...</div>
+            <button class="btn-copy" onclick="copyCode()">Copiar código</button>
+        </div>
+
         <div class="divider">O introduce aquí el suyo</div>
         <input type="text" id="friend-code" placeholder="Código del rival">
+
         <div class="btn-container">
             <button class="btn btn-primary btn-full" onclick="joinGame()">Conectar y jugar</button>
             <button class="btn btn-ghost btn-full" onclick="location.reload()">Volver</button>
