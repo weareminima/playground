@@ -660,28 +660,14 @@
             /* Box Shadow for 3D effect */
             box-shadow: 0 4px 0 var(--shadow-color);
 
-            /* Mobile Optimization */
-            will-change: transform;
-            transform: translateZ(0);
+            /* Mobile Optimization - Force GPU acceleration */
+            will-change: transform, box-shadow;
+            transform: translate3d(0, 0, 0);
             -webkit-font-smoothing: antialiased;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-        }
-
-        /* 3D Shadow using pseudo-element - positioned from container bottom */
-        .tile::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 100%;
-            /* Start from bottom of tile */
-            height: 4px;
-            background-color: var(--shadow-color);
-            border-radius: 0 0 16px 16px;
-            transform-origin: top center;
-            will-change: height;
-            transition: height 0.1s;
+            -webkit-transform: translate3d(0, 0, 0);
+            /* iOS specific */
         }
 
         @media (hover: hover) {
@@ -744,47 +730,27 @@
         @keyframes waveJump {
             0% {
                 transform: translate3d(0, 0, 0);
+                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             40% {
                 transform: translate3d(0, -14px, 0);
+                box-shadow: 0 18px 0 var(--shadow-color);
             }
 
             70% {
                 transform: translate3d(0, 4px, 0);
+                box-shadow: 0 0px 0 var(--shadow-color);
             }
 
             85% {
                 transform: translate3d(0, -4px, 0);
+                box-shadow: 0 8px 0 var(--shadow-color);
             }
 
             100% {
                 transform: translate3d(0, 0, 0);
-            }
-        }
-
-        @keyframes waveShadow {
-            0% {
-                height: 4px;
-            }
-
-            40% {
-                height: 18px;
-            }
-
-            /* 4 + 14 */
-            70% {
-                height: 0px;
-            }
-
-            /* Compressed */
-            85% {
-                height: 8px;
-            }
-
-            /* 4 + 4 */
-            100% {
-                height: 4px;
+                box-shadow: 0 4px 0 var(--shadow-color);
             }
         }
 
@@ -792,59 +758,35 @@
             animation: waveJump 0.3s ease-in-out;
         }
 
-        .tile.validating::after {
-            animation: waveShadow 0.3s ease-in-out;
-        }
-
         @keyframes waveJumpLoop {
             0% {
                 transform: translate3d(0, 0, 0);
+                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             8% {
                 transform: translate3d(0, -14px, 0);
+                box-shadow: 0 18px 0 var(--shadow-color);
             }
 
             14% {
                 transform: translate3d(0, 4px, 0);
+                box-shadow: 0 0px 0 var(--shadow-color);
             }
 
             17% {
                 transform: translate3d(0, -4px, 0);
+                box-shadow: 0 8px 0 var(--shadow-color);
             }
 
             20% {
                 transform: translate3d(0, 0, 0);
+                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             100% {
                 transform: translate3d(0, 0, 0);
-            }
-        }
-
-        @keyframes waveShadowLoop {
-            0% {
-                height: 4px;
-            }
-
-            8% {
-                height: 18px;
-            }
-
-            14% {
-                height: 0px;
-            }
-
-            17% {
-                height: 8px;
-            }
-
-            20% {
-                height: 4px;
-            }
-
-            100% {
-                height: 4px;
+                box-shadow: 0 4px 0 var(--shadow-color);
             }
         }
 
@@ -942,10 +884,6 @@
             --shadow-color: var(--success-dark) !important;
         }
 
-        .tile.success::after {
-            animation: waveShadowLoop 2s ease-in-out infinite;
-        }
-
         .tile.fail {
             animation: shake 0.5s ease-in-out;
             --tile-color: var(--danger) !important;
@@ -958,10 +896,6 @@
             color: #101012 !important;
             animation: waveJumpLoop 2s ease-in-out infinite;
             --shadow-color: var(--warning-dark) !important;
-        }
-
-        .tile.draw::after {
-            animation: waveShadowLoop 2s ease-in-out infinite;
         }
 
         /* Staggering for result tiles */
