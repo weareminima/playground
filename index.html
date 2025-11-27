@@ -664,6 +664,8 @@
             will-change: transform, box-shadow;
             transform: translateZ(0);
             -webkit-font-smoothing: antialiased;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         /* Removed ::before and ::after */
@@ -676,9 +678,8 @@
         }
 
         .tile:active {
-            transform: translateY(4px);
+            transform: translate3d(0, 4px, 0);
             box-shadow: 0 0 0 var(--shadow-color);
-            /* Compress shadow */
         }
 
         /* Animaciones */
