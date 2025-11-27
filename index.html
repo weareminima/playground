@@ -668,19 +668,20 @@
             -webkit-backface-visibility: hidden;
         }
 
-        /* 3D Shadow using pseudo-element for mobile compatibility */
+        /* 3D Shadow using pseudo-element - positioned from container bottom */
         .tile::after {
             content: '';
             position: absolute;
             left: 0;
             right: 0;
-            bottom: -4px;
+            top: 100%;
+            /* Start from bottom of tile */
             height: 4px;
             background-color: var(--shadow-color);
             border-radius: 0 0 16px 16px;
             transform-origin: top center;
-            will-change: transform;
-            transform: translateZ(0);
+            will-change: height;
+            transition: height 0.1s;
         }
 
         @media (hover: hover) {
@@ -764,24 +765,26 @@
 
         @keyframes waveShadow {
             0% {
-                transform: scaleY(1) translateY(0);
+                height: 4px;
             }
 
             40% {
-                transform: scaleY(4.5) translateY(7px);
+                height: 18px;
             }
 
-            /* Stretch to 18px total */
+            /* 4 + 14 */
             70% {
-                transform: scaleY(0) translateY(-2px);
+                height: 0px;
             }
 
+            /* Compressed */
             85% {
-                transform: scaleY(2) translateY(2px);
+                height: 8px;
             }
 
+            /* 4 + 4 */
             100% {
-                transform: scaleY(1) translateY(0);
+                height: 4px;
             }
         }
 
@@ -821,27 +824,27 @@
 
         @keyframes waveShadowLoop {
             0% {
-                transform: scaleY(1) translateY(0);
+                height: 4px;
             }
 
             8% {
-                transform: scaleY(4.5) translateY(7px);
+                height: 18px;
             }
 
             14% {
-                transform: scaleY(0) translateY(-2px);
+                height: 0px;
             }
 
             17% {
-                transform: scaleY(2) translateY(2px);
+                height: 8px;
             }
 
             20% {
-                transform: scaleY(1) translateY(0);
+                height: 4px;
             }
 
             100% {
-                transform: scaleY(1) translateY(0);
+                height: 4px;
             }
         }
 
