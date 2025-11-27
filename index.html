@@ -661,14 +661,27 @@
             box-shadow: 0 4px 0 var(--shadow-color);
 
             /* Mobile Optimization */
-            will-change: transform, box-shadow;
+            will-change: transform;
             transform: translateZ(0);
             -webkit-font-smoothing: antialiased;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
 
-        /* Removed ::before and ::after */
+        /* 3D Shadow using pseudo-element for mobile compatibility */
+        .tile::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -4px;
+            height: 4px;
+            background-color: var(--shadow-color);
+            border-radius: 0 0 16px 16px;
+            transform-origin: top center;
+            will-change: transform;
+            transform: translateZ(0);
+        }
 
         @media (hover: hover) {
             .tile:hover {
@@ -728,75 +741,109 @@
         }
 
         @keyframes waveJump {
-
             0% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             40% {
                 transform: translate3d(0, -14px, 0);
-                box-shadow: 0 18px 0 var(--shadow-color);
             }
 
             70% {
                 transform: translate3d(0, 4px, 0);
-                box-shadow: 0 0px 0 var(--shadow-color);
             }
 
             85% {
                 transform: translate3d(0, -4px, 0);
-                box-shadow: 0 8px 0 var(--shadow-color);
             }
 
             100% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
             }
         }
 
-        /* Removed waveShadow */
-
-        /* Loop versions for result panel - preserves the fast "snap" of validation within a loop */
-        @keyframes waveJumpLoop {
+        @keyframes waveShadow {
             0% {
-                transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
+                transform: scaleY(1) translateY(0);
             }
 
-            8% {
-                transform: translate3d(0, -14px, 0);
-                box-shadow: 0 18px 0 var(--shadow-color);
+            40% {
+                transform: scaleY(4.5) translateY(7px);
             }
 
-            14% {
-                transform: translate3d(0, 4px, 0);
-                box-shadow: 0 0px 0 var(--shadow-color);
+            /* Stretch to 18px total */
+            70% {
+                transform: scaleY(0) translateY(-2px);
             }
 
-            17% {
-                transform: translate3d(0, -4px, 0);
-                box-shadow: 0 8px 0 var(--shadow-color);
-            }
-
-            20% {
-                transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
+            85% {
+                transform: scaleY(2) translateY(2px);
             }
 
             100% {
-                transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
+                transform: scaleY(1) translateY(0);
             }
         }
-
-        /* Removed waveShadowLoop */
 
         .tile.validating {
             animation: waveJump 0.3s ease-in-out;
         }
 
-        /* Removed .tile.validating::after */
+        .tile.validating::after {
+            animation: waveShadow 0.3s ease-in-out;
+        }
+
+        @keyframes waveJumpLoop {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            8% {
+                transform: translate3d(0, -14px, 0);
+            }
+
+            14% {
+                transform: translate3d(0, 4px, 0);
+            }
+
+            17% {
+                transform: translate3d(0, -4px, 0);
+            }
+
+            20% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        @keyframes waveShadowLoop {
+            0% {
+                transform: scaleY(1) translateY(0);
+            }
+
+            8% {
+                transform: scaleY(4.5) translateY(7px);
+            }
+
+            14% {
+                transform: scaleY(0) translateY(-2px);
+            }
+
+            17% {
+                transform: scaleY(2) translateY(2px);
+            }
+
+            20% {
+                transform: scaleY(1) translateY(0);
+            }
+
+            100% {
+                transform: scaleY(1) translateY(0);
+            }
+        }
 
         @keyframes winElevation {
 
@@ -892,6 +939,10 @@
             --shadow-color: var(--success-dark) !important;
         }
 
+        .tile.success::after {
+            animation: waveShadowLoop 2s ease-in-out infinite;
+        }
+
         .tile.fail {
             animation: shake 0.5s ease-in-out;
             --tile-color: var(--danger) !important;
@@ -904,6 +955,10 @@
             color: #101012 !important;
             animation: waveJumpLoop 2s ease-in-out infinite;
             --shadow-color: var(--warning-dark) !important;
+        }
+
+        .tile.draw::after {
+            animation: waveShadowLoop 2s ease-in-out infinite;
         }
 
         /* Staggering for result tiles */
