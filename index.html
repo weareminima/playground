@@ -102,7 +102,7 @@
             z-index: 10;
             display: flex;
             flex-direction: column;
-            padding: 20px 24px 24px 24px;
+            padding: 24px 24px 32px 24px;
             transition: opacity 0.3s ease;
         }
 
@@ -143,11 +143,15 @@
         }
 
         .logo-game-svg {
-            width: 112px;
-            height: auto;
-            margin-top: 48px;
+            width: auto;
+            height: 24px;
+            margin-top: 8px;
+            /* 24px padding + 8px = 32px visual top margin */
             margin-bottom: 32px;
             align-self: center;
+            display: flex;
+            /* Ensure it behaves as a container */
+            justify-content: center;
         }
 
         /* Tipografía */
@@ -312,6 +316,7 @@
             border-radius: 16px;
             height: 56px;
             font-family: var(--font);
+            font-variation-settings: 'ROND' 100;
             font-weight: 500;
             font-size: 16px;
             cursor: pointer;
@@ -370,11 +375,17 @@
             gap: 8px;
             width: 100%;
             margin-bottom: 32px;
+            transition: gap 0.5s;
+        }
+
+        /* Remove gap when timer is collapsed to rely on margin or just 0 gap if margin is used */
+        .scoreboard-container:has(.timer-card.collapsed) {
+            gap: 0;
         }
 
         .score-card {
-            background: var(--primary-05);
-            border-radius: var(--radius-card);
+            background: rgba(0, 199, 252, 0.1);
+            border-radius: 32px;
             padding: 24px;
             display: flex;
             flex-direction: column;
@@ -383,6 +394,17 @@
             flex: 1;
             height: 120px;
             position: relative;
+        }
+
+        /* Force gap when timer is collapsed */
+        .scoreboard-container:has(.timer-card.collapsed) .score-card:first-child {
+            margin-right: 8px;
+        }
+
+        .score-card span {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .avatar-icon {
@@ -395,7 +417,10 @@
         .score-row {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            position: relative;
+            width: 100%;
         }
 
         .score-card .val {
@@ -426,12 +451,19 @@
         }
 
         .score-card .added {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.5s;
             position: absolute;
-            right: 18px;
-            top: 60px;
-            transform: translateY(-50%);
+            left: 50%;
+            transform: translateX(20px);
+            /* Offset from center */
+            white-space: nowrap;
+        }
+
+        .score-card .added.visible {
+            opacity: 1;
         }
 
         .added.win {
@@ -443,16 +475,23 @@
         }
 
         .timer-card {
-            background: var(--primary-05);
-            border-radius: var(--radius-card);
-            padding: 10px;
+            background: rgba(0, 199, 252, 0.1);
+            border-radius: 32px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 110px;
             height: 120px;
-            transition: width 0.5s, opacity 0.5s;
+            transition: width 0.5s, opacity 0.5s, padding 0.5s;
+        }
+
+        .timer-card span {
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
         }
 
         .timer-card.collapsed {
@@ -461,38 +500,44 @@
             opacity: 0;
             overflow: hidden;
             margin: 0;
+            /* The gap is handled by the container, but we might need to trick it if flex gap persists */
         }
 
+        /* Removed scoreFly animation */
+
         .timer-big {
-            font-size: 48px;
-            font-weight: 500;
+            font-size: 48px !important;
+            font-weight: 700;
+            color: #FFFFFF;
             line-height: 1;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .timer-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #888;
+            font-size: 12px !important;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .word-zone-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            transition: width 0.2s ease-out;
+            margin-bottom: 32px;
+            height: 56px;
+
+            /* Restored visual styles */
             background: rgba(0, 199, 252, 0.1);
             border: 2px solid rgba(0, 199, 252, 0.05);
             border-radius: 20px;
             padding: 8px;
-            height: 56px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 24px;
-            transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s, border-color 0.3s;
             box-sizing: border-box;
+            align-items: center;
             margin-left: auto;
+            /* Fix centering */
             margin-right: auto;
-            flex-wrap: nowrap;
-            /* Prevent wrapping */
+            /* Fix centering */
         }
 
         .container-win {
@@ -505,6 +550,14 @@
             border-color: rgba(255, 95, 34, 0.05) !important;
         }
 
+        .container-error {
+            background: rgba(255, 95, 34, 0.1) !important;
+            border: 2px solid rgba(255, 95, 34, 0.05);
+            /* Explicit border to override default if needed */
+            border-radius: 20px;
+            /* Ensure radius is kept */
+        }
+
         .container-draw {
             background: rgba(255, 185, 0, 0.1) !important;
             border-color: rgba(255, 185, 0, 0.05) !important;
@@ -514,7 +567,7 @@
             display: flex;
             gap: 4px;
             justify-content: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             width: 100%;
         }
 
@@ -523,18 +576,19 @@
             height: 40px;
             font-size: 24px;
             border-radius: 12px;
-            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4);
-            background-color: var(--primary);
+            /* Inherit main tile styles */
             color: #000;
         }
 
-        .word-zone .tile:hover {
-            background-color: rgba(0, 199, 252, 0.6);
+        @media (hover: hover) {
+            .word-zone .tile:hover {
+                background-color: rgba(0, 199, 252, 0.6);
+            }
         }
 
         .word-zone .tile:active {
             transform: translateY(3px);
-            box-shadow: inset 0 -2px 0 rgba(15, 25, 30, 0.4);
+            /* box-shadow handled by ::after */
         }
 
         .word-result-row {
@@ -560,8 +614,7 @@
             height: 40px;
             font-size: 24px;
             border-radius: 12px;
-            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4);
-            background-color: var(--primary);
+            /* Inherit main tile styles */
             color: #000;
         }
 
@@ -570,7 +623,7 @@
             grid-template-columns: repeat(5, min(64px, 17vw));
             gap: 8px;
             justify-content: center;
-            margin-bottom: auto;
+            /* margin-bottom: auto; Removed to fix centering */
             transition: opacity 0.3s;
         }
 
@@ -585,7 +638,8 @@
         .tile {
             width: min(64px, 17vw);
             height: min(80px, 21.25vw);
-            background-color: var(--primary);
+            background-color: var(--tile-color);
+            /* Solid color */
             color: #000;
             font-size: min(48px, 12vw);
             font-weight: 700;
@@ -595,26 +649,40 @@
             border-radius: 16px;
             cursor: pointer;
             user-select: none;
-            box-shadow: inset 0 -8px 0 rgba(15, 25, 30, 0.4);
-            transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+            transition: transform 0.1s;
             position: relative;
             z-index: 5;
+
+            /* Default Colors */
+            --tile-color: var(--primary);
+            --shadow-color: var(--primary-dark);
+
+            /* Box Shadow for 3D effect */
+            box-shadow: 0 4px 0 var(--shadow-color);
         }
 
-        .tile:hover {
-            background-color: rgba(0, 199, 252, 0.6);
-            animation: squash 0.5s ease-in-out;
+        /* Removed ::before and ::after */
+
+        @media (hover: hover) {
+            .tile:hover {
+                --tile-color: #00B3E3;
+                animation: squash 0.5s ease-in-out;
+            }
         }
 
         .tile:active {
             transform: translateY(4px);
-            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4);
+            box-shadow: 0 0 0 var(--shadow-color);
+            /* Compress shadow */
         }
 
         /* Animaciones */
         @keyframes squash {
+            0% {
+                transform: scale(1);
+            }
 
-            75% {
+            50% {
                 transform: scale(1.02, 0.98);
             }
 
@@ -624,45 +692,125 @@
         }
 
         @keyframes shake {
-            0% {
-                transform: translateX(0);
-            }
 
-            20% {
-                transform: translateX(-6px) rotate(-5deg);
-            }
-
-            40% {
-                transform: translateX(6px) rotate(5deg);
-            }
-
-            60% {
-                transform: translateX(-6px) rotate(-5deg);
-            }
-
-            80% {
-                transform: translateX(6px) rotate(5deg);
-            }
-
+            0%,
             100% {
                 transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-4px) rotate(-2deg);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(4px) rotate(2deg);
             }
         }
 
         .tile.shake {
             animation: shake 0.4s ease-in-out;
-            background-color: var(--danger) !important;
-            color: white !important;
-            box-shadow: 0 3px 0 var(--danger-dark) !important;
+            --tile-color: var(--danger) !important;
+            color: #101012 !important;
+            --shadow-color: var(--danger-dark) !important;
         }
 
         @keyframes waveJump {
             0% {
                 transform: translateY(0);
+                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
-            50% {
-                transform: translateY(-15px);
+            40% {
+                transform: translateY(-14px);
+                box-shadow: 0 18px 0 var(--shadow-color);
+            }
+
+            /* 4 + 14 = 18 */
+            70% {
+                transform: translateY(4px);
+                box-shadow: 0 0px 0 var(--shadow-color);
+            }
+
+            /* 4 - 4 = 0 */
+            85% {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 0 var(--shadow-color);
+            }
+
+            /* 4 + 4 = 8 */
+            100% {
+                transform: translateY(0);
+                box-shadow: 0 4px 0 var(--shadow-color);
+            }
+        }
+
+        /* Removed waveShadow */
+
+        /* Loop versions for result panel - preserves the fast "snap" of validation within a loop */
+        @keyframes waveJumpLoop {
+            0% {
+                transform: translateY(0);
+                box-shadow: 0 4px 0 var(--shadow-color);
+            }
+
+            8% {
+                transform: translateY(-14px);
+                box-shadow: 0 18px 0 var(--shadow-color);
+            }
+
+            14% {
+                transform: translateY(4px);
+                box-shadow: 0 0px 0 var(--shadow-color);
+            }
+
+            17% {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 0 var(--shadow-color);
+            }
+
+            20% {
+                transform: translateY(0);
+                box-shadow: 0 4px 0 var(--shadow-color);
+            }
+
+            100% {
+                transform: translateY(0);
+                box-shadow: 0 4px 0 var(--shadow-color);
+            }
+        }
+
+        /* Removed waveShadowLoop */
+
+        .tile.validating {
+            animation: waveJump 0.3s ease-in-out;
+        }
+
+        /* Removed .tile.validating::after */
+
+        @keyframes winElevation {
+
+            /* Exact copy of waveJump */
+            0% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-14px);
+            }
+
+            70% {
+                transform: translateY(4px);
+            }
+
+            85% {
+                transform: translateY(-4px);
             }
 
             100% {
@@ -670,9 +818,9 @@
             }
         }
 
-        .tile.validating {
-            animation: waveJump 0.4s ease-in-out;
-        }
+        /* drawShadow uses winShadow keyframes */
+
+        /* drawShadow uses same keyframes as winShadow, just different color handled by var */
 
         @keyframes winExplosion {
             0% {
@@ -687,14 +835,12 @@
                 transform: scale(1.1) rotate(10deg);
                 background-color: var(--success);
                 color: black;
-                box-shadow: 0 0 15px var(--success);
             }
 
             100% {
                 transform: scale(1) rotate(0deg);
                 background-color: var(--success);
                 color: black;
-                box-shadow: 0 3px 0 var(--success-dark);
             }
         }
 
@@ -702,19 +848,16 @@
             0% {
                 transform: scale(1);
                 background-color: var(--warning);
-                box-shadow: 0 3px 0 var(--warning-dark);
             }
 
             50% {
                 transform: scale(1.1);
                 background-color: var(--warning);
-                box-shadow: 0 0 10px var(--warning);
             }
 
             100% {
                 transform: scale(1);
                 background-color: var(--warning);
-                box-shadow: 0 3px 0 var(--warning-dark);
             }
         }
 
@@ -739,23 +882,69 @@
         }
 
         .tile.success {
-            animation: winExplosion 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            background-color: #00EA71 !important;
-            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4) !important;
+            animation: waveJumpLoop 2s ease-in-out infinite;
+            --tile-color: var(--success) !important;
+            color: #101012 !important;
+            --shadow-color: var(--success-dark) !important;
         }
 
         .tile.fail {
-            background-color: #FF5F22 !important;
-            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4) !important;
-            color: #fff;
+            animation: shake 0.5s ease-in-out;
+            --tile-color: var(--danger) !important;
+            color: #101012 !important;
+            --shadow-color: var(--danger-dark) !important;
         }
 
         .tile.draw {
-            background-color: #FFB900 !important;
-            box-shadow: inset 0 -4px 0 rgba(15, 25, 30, 0.4) !important;
-            color: #000;
-            animation: drawHighlight 0.5s ease-in-out forwards;
+            --tile-color: var(--warning) !important;
+            color: #101012 !important;
+            animation: waveJumpLoop 2s ease-in-out infinite;
+            --shadow-color: var(--warning-dark) !important;
         }
+
+        /* Staggering for result tiles */
+        .word-result-row .tile:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .word-result-row .tile:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .word-result-row .tile:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .word-result-row .tile:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .word-result-row .tile:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+        .word-result-row .tile:nth-child(6) {
+            animation-delay: 0.5s;
+        }
+
+        .word-result-row .tile:nth-child(7) {
+            animation-delay: 0.6s;
+        }
+
+        .word-result-row .tile:nth-child(8) {
+            animation-delay: 0.7s;
+        }
+
+        .word-result-row .tile:nth-child(9) {
+            animation-delay: 0.8s;
+        }
+
+        .word-result-row .tile:nth-child(10) {
+            animation-delay: 0.9s;
+        }
+
+        /* Apply same delays to pseudo-elements */
+        /* Removed ::after animation delays */
 
         @keyframes fadeInScale {
             from {
@@ -775,8 +964,20 @@
             align-items: center;
             width: 100%;
             flex-grow: 1;
+            position: relative;
+            z-index: 20;
             opacity: 0;
             animation: fadeInScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            margin-top: -20px;
+        }
+
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
         }
 
         .res-icon {
@@ -793,8 +994,8 @@
         }
 
         .res-subtitle {
-            font-size: 0.9rem;
-            color: #aaa;
+            font-size: 16px;
+            color: #FFFFFF;
             margin-bottom: 16px;
             margin-top: 24px;
             text-align: center;
@@ -810,21 +1011,45 @@
 
         #toast {
             position: fixed;
-            top: 80px;
+            bottom: 120px;
+            /* Above buttons */
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(8px);
-            border: 1px solid #333;
-            padding: 12px 24px;
-            border-radius: 50px;
+            background: transparent;
+            border: none;
+            padding: 0;
             color: white;
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 18px;
             z-index: 5000;
             display: none;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: none;
             pointer-events: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        #game-status-message {
+            position: fixed;
+            bottom: 88px;
+            /* Start lower */
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: 500;
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+            z-index: 4000;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s ease-out;
+            pointer-events: none;
+        }
+
+        #game-status-message.visible {
+            opacity: 1;
+            bottom: 120px;
+            /* End position */
         }
     </style>
     </style>
@@ -832,34 +1057,16 @@
 
 <body>
 
-    <div id="toast">¡Código copiado! ✅</div>
+    <div id="toast"></div>
+    <div id="game-status-message"></div>
 
-    <template id="logo-template">
-        <svg viewBox="0 0 279 89" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
-            <path
-                d="M0.0799999 10.88L0 9.92C0 8 1.52 6.72 3.2 6.72C4.8 6.72 6.08 7.68 6.4 9.6L13.2 51.2L29.68 9.76C30.4 7.76 32 6.72 33.68 6.72C35.6 6.72 36.8 7.76 37.28 9.92L45.68 51.2L61.12 9.36C61.76 7.6 62.8 6.72 64.32 6.72C66.16 6.72 67.52 8.16 67.52 9.76C67.52 10.16 67.44 10.72 67.2 11.28L48.8 59.36C47.92 61.6 46.56 62.72 44.64 62.72C42.48 62.72 41.2 61.52 40.8 59.2L32.72 18.08L16.08 59.44C15.2 61.6 13.76 62.72 11.76 62.72C9.76 62.72 8.56 61.52 8.16 59.12L0.0799999 10.88Z"
-                fill="white" />
-            <path
-                d="M68.3794 46.32C68.2194 34.88 77.0994 24 89.4194 24.32C93.6594 24.32 96.8594 25.2 101.419 26.88C105.899 28.4 107.819 28.96 110.699 28.96C112.859 28.96 114.619 28.72 115.979 28.32C117.419 27.84 119.339 26.96 121.819 25.6C122.459 25.28 123.019 25.12 123.579 25.12C124.939 25.12 125.979 26.08 125.979 27.6C125.979 28.8 125.419 29.68 124.219 30.32C119.179 33.12 116.139 34.24 111.099 34.24C108.939 34.24 106.699 33.92 104.459 33.36C105.659 35.68 106.219 38.56 106.219 42C106.379 53.36 97.8194 63.76 85.3394 63.52C75.9794 63.52 68.3794 57.44 68.3794 46.32ZM74.7794 45.36C74.7794 53.44 78.8594 58.24 85.6594 58.24C93.8194 58.24 99.7394 50.96 99.7394 42.32C99.7394 34.32 95.4994 29.6 89.1794 29.6C81.2594 29.6 74.7794 37.04 74.7794 45.36Z"
-                fill="white" />
-            <path
-                d="M135.012 25.44C136.532 24.96 137.972 24.72 139.332 24.72C141.012 24.72 142.052 25.2 143.412 26.56C146.052 29.2 148.852 30.8 153.412 30.8C156.932 30.8 159.412 29.84 163.492 27.92C168.532 25.6 171.972 24.32 177.412 24.32C179.012 24.32 180.132 25.2 180.132 27.04C180.132 28.72 179.012 29.6 177.412 29.6C172.692 29.6 169.652 30.64 164.532 32.88C159.812 35.04 157.012 36 152.932 36C147.172 36 142.452 33.68 138.852 30.08C135.652 30.08 132.772 31.28 130.212 33.68C126.932 36.8 125.092 41.04 124.612 46.24L123.252 59.52C123.012 61.52 121.892 62.72 120.212 62.72C118.292 62.72 117.172 61.6 117.172 59.76L120.372 28.32C120.612 26.32 121.972 25.12 123.572 25.12C125.492 25.12 126.452 26.16 126.452 28.16L126.052 31.92C128.532 28.64 131.572 26.48 135.012 25.44Z"
-                fill="white" />
-            <path
-                d="M191.144 50.4L191.064 52.08C191.064 56.16 193.704 58.24 197.784 58.24C203.784 58.24 207.624 53.12 208.984 42.56C209.224 40.64 210.584 39.44 212.104 39.44C213.624 39.44 214.504 40.64 214.504 42.96C212.984 55.68 207.224 63.52 197.544 63.52C192.104 63.52 188.264 61.2 186.424 57.28C182.664 61.76 178.024 63.52 171.624 63.52C163.704 63.52 156.504 57.6 156.504 46.56C156.344 35.36 164.584 24.08 176.744 24.32C181.464 24.32 185.464 26.24 187.304 28.8L190.104 3.2C190.344 1.04 191.544 0 193.544 0C195.144 0 196.184 1.04 196.184 3.04L191.144 50.4ZM186.104 40.24L186.184 38.48C186.184 36.48 185.624 34.88 184.584 33.6C182.344 30.96 179.704 29.6 176.584 29.6C168.664 29.6 162.904 37.44 162.904 46.08C162.904 53.76 166.584 58.24 173.224 58.24C176.984 58.24 180.184 56.56 182.344 54.08C184.264 51.84 184.984 50.24 185.304 47.04L186.104 40.24Z"
-                fill="white" />
-            <path
-                d="M216.292 0C218.132 0 219.092 0.879998 219.092 2.72L214.292 48.96L214.212 50.88C214.212 55.44 216.212 58.24 220.452 58.24C225.812 58.24 230.372 52.96 231.412 42.4C231.652 40.4 232.852 39.28 234.372 39.28C236.212 39.28 237.172 40.56 237.172 43.04C235.652 55.76 229.332 63.52 220.052 63.52C213.412 63.52 208.132 59.44 208.132 51.04C208.132 50.48 208.212 49.68 208.292 48.48L213.092 3.04C213.332 1.2 214.452 0 216.292 0Z"
-                fill="white" />
-            <path
-                d="M236.392 25.12C238.312 25.12 239.192 26.4 239.192 28.32L237.112 47.28C237.032 48.24 236.952 49.04 236.952 49.76C236.952 55.84 239.912 58.24 244.312 58.24C247.592 58.24 250.952 56.64 253.592 54C255.832 51.76 257.032 48.96 257.432 44.16L259.112 28.32C259.352 26.08 260.392 25.12 262.632 25.12C264.312 25.12 265.192 26.16 265.192 28.32L261.672 60.8C264.632 59.52 268.712 57.28 273.912 54.4C274.552 54 275.112 53.84 275.672 53.84C277.032 53.84 278.072 54.88 278.072 56.16C278.072 57.12 277.432 58.08 276.232 58.72L268.152 63.04C266.152 64.08 263.752 65.28 261.032 66.48L260.232 74C259.192 83.6 254.952 88.64 247.512 88.64C241.832 88.64 237.912 84.8 237.912 79.44C238.232 71.68 243.992 68.16 255.352 63.44L255.912 58.56C252.312 61.84 248.152 63.52 243.432 63.52C236.952 63.52 230.792 59.36 230.792 50.48C230.792 49.6 230.792 48.88 230.872 48.4L232.872 28.32C233.112 26.16 234.232 25.12 236.392 25.12ZM254.072 75.36L254.712 69.04C247.352 72.24 243.432 75.2 243.432 79.12C243.432 81.68 245.112 83.36 247.752 83.36C251.352 83.36 253.512 80.24 254.072 75.36Z"
-                fill="white" />
-        </svg>
-    </template>
+    <!-- Logo template removed, using img tag directly -->
 
     <div id="screen-intro" class="screen">
         <div style="flex-grow: 1;"></div>
-        <div class="logo-svg" id="intro-logo-container"></div>
+        <div class="logo-svg" id="intro-logo-container">
+            <img src="Recursos/Logo.svg" alt="Wordly Logo" style="width: 100%; height: auto;">
+        </div>
         <p class="intro-text">Introduce tu nombre para empezar</p>
         <input type="text" id="username" placeholder="Tu nombre" maxlength="10">
         <div class="btn-container">
@@ -887,7 +1094,9 @@
     </div>
 
     <div id="screen-game" class="screen hidden">
-        <div class="logo-game-svg" id="game-logo-container"></div>
+        <div class="logo-game-svg" id="game-logo-container">
+            <img src="Recursos/Logo.svg" alt="Wordly Logo" style="height: 100%; width: auto;">
+        </div>
 
         <div id="scoreboard" class="scoreboard-container hidden">
             <div class="score-card">
@@ -912,11 +1121,15 @@
             </div>
         </div>
 
-        <div id="game-active-area" style="width: 100%; display: flex; flex-direction: column; flex-grow: 1;">
-            <div class="word-zone-container">
-                <div id="word-zone" class="word-zone"></div>
+        <div id="game-active-area"
+            style="width: 100%; display: flex; flex-direction: column; flex-grow: 1; justify-content: center;">
+            <div
+                style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div class="word-zone-container">
+                    <div id="word-zone" class="word-zone"></div>
+                </div>
+                <div id="pool-zone" class="pool-zone"></div>
             </div>
-            <div id="pool-zone" class="pool-zone"></div>
             <div class="game-footer">
                 <button id="btn-left" class="btn btn-soft-blue btn-auto" onclick="handleLeftButton()">Nueva
                     partida</button>
@@ -925,13 +1138,15 @@
         </div>
 
         <div id="result-panel" class="hidden">
-            <div id="res-icon" class="res-icon">🎉</div>
-            <h2 id="res-title">¡Has ganado!</h2>
+            <div class="result-content">
+                <div id="res-icon" class="res-icon">🎉</div>
+                <h2 id="res-title">¡Has ganado!</h2>
 
-            <div id="res-my-word" class="word-result-row" style="margin-top: 16px;"></div>
+                <div id="res-my-word" class="word-result-row" style="margin-top: 16px;"></div>
 
-            <p id="res-subtitle" class="res-subtitle">Rival ha perdido con:</p>
-            <div id="res-opp-word" class="word-result-row"></div>
+                <p id="res-subtitle" class="res-subtitle">Rival ha perdido con:</p>
+                <div id="res-opp-word" class="word-result-row"></div>
+            </div>
 
             <div style="margin-top: auto; width: 100%; display: flex; justify-content: center;">
                 <button class="btn btn-soft-blue btn-auto" onclick="handleLeftButton()">Nueva partida</button>
@@ -941,12 +1156,9 @@
 
     <script>
         // --- INICIALIZACIÓN DE LOGOS ---
+        // Logo template logic removed as we use img tags now
         window.addEventListener('DOMContentLoaded', () => {
-            const logoTemplate = document.getElementById('logo-template');
-            const logoHTML = logoTemplate.innerHTML; // Obtener el código SVG
-
-            document.getElementById('intro-logo-container').innerHTML = logoHTML;
-            document.getElementById('game-logo-container').innerHTML = logoHTML;
+            // No need to populate logos via JS anymore, they are directly in HTML
         });
 
         // --- AVATARES SVG ---
@@ -959,6 +1171,7 @@
 
         const VOWEL_BAG = "AAAAAAAAAAAAEEEEEEEEEEEEIIIIIIOOOOOOOOUUUU";
         const CONSONANT_BAG = "SSSSSSSSRRRRRRNNNNNLLLLTTTTDDDDCCCGGGMBBPPHFVYQJÑXZKW";
+        const COMMON_CONSONANTS = "SRNLTDC";
         const ROUND_TIME = 60;
 
         let state = { mode: 'SOLO', role: 'HOST', myName: '', oppName: 'Rival', myScore: 0, oppScore: 0, letters: [], timeLeft: ROUND_TIME, myWord: null, oppWord: null };
@@ -977,12 +1190,17 @@
 
             if (mode === 'SOLO') {
                 document.body.classList.add('no-bg');
-                document.getElementById('scoreboard').classList.add('hidden');
-                document.getElementById('game-logo-container').classList.add('hidden');
-                document.getElementById('screen-game').style.justifyContent = "center";
-                state.oppName = "CPU";
+                document.getElementById('screen-game').style.justifyContent = "flex-start";
+                document.getElementById('scoreboard').classList.remove('hidden');
+                document.getElementById('game-logo-container').classList.remove('hidden');
+
+                // Hide P2 score card in SOLO
+                document.querySelectorAll('.score-card')[1].classList.add('hidden');
+
+                state.oppName = ""; // No opponent
                 startGameUI(); hostGameLogic();
             } else {
+                document.querySelectorAll('.score-card')[1].classList.remove('hidden'); // Ensure visible in MULTI
                 document.getElementById('screen-game').style.justifyContent = "flex-start";
                 document.getElementById('scoreboard').classList.remove('hidden');
                 document.getElementById('game-logo-container').classList.remove('hidden');
@@ -1001,7 +1219,13 @@
             let letters = [];
             const numVowels = Math.random() > 0.5 ? 4 : 5;
             for (let i = 0; i < numVowels; i++) letters.push(randChar(VOWEL_BAG));
-            for (let i = 0; i < 10 - numVowels; i++) letters.push(randChar(CONSONANT_BAG));
+
+            const numConsonants = 10 - numVowels;
+            // 3 common consonants
+            for (let i = 0; i < 3; i++) letters.push(randChar(COMMON_CONSONANTS));
+            // The rest random from full bag
+            for (let i = 0; i < numConsonants - 3; i++) letters.push(randChar(CONSONANT_BAG));
+
             letters.sort(() => Math.random() - 0.5);
             startRound(letters);
             if (state.mode === 'MULTI') sendData({ type: 'NEW_GAME', letters: letters });
@@ -1019,9 +1243,14 @@
             document.getElementById('result-panel').classList.add('hidden');
 
             document.getElementById('card-timer').classList.remove('collapsed');
+            if (state.mode === 'SOLO') document.getElementById('card-timer').classList.add('hidden'); // Hide timer in SOLO
+            else document.getElementById('card-timer').classList.remove('hidden');
 
             const btnAction = document.getElementById('btn-action');
-            btnAction.disabled = false; btnAction.innerText = "Validar"; btnAction.classList.remove('hidden');
+            btnAction.disabled = false;
+            btnAction.innerText = "Validar";
+            btnAction.classList.remove('hidden');
+            btnAction.style.opacity = "1"; // Explicitly reset opacity
 
             const btnLeft = document.getElementById('btn-left');
             btnLeft.innerText = "Nueva partida";
@@ -1038,7 +1267,14 @@
         }
 
         function renderBoard(letters) {
-            const pool = document.getElementById('pool-zone'); const word = document.getElementById('word-zone'); pool.innerHTML = ''; word.innerHTML = '';
+            const pool = document.getElementById('pool-zone');
+            const word = document.getElementById('word-zone');
+            pool.innerHTML = '';
+            word.innerHTML = '';
+
+            // Reset container width explicitly at start of round
+            document.querySelector('.word-zone-container').style.width = '100%';
+
             letters.forEach((char, i) => {
                 const tile = document.createElement('div'); tile.className = 'tile'; tile.textContent = char; tile.id = `t-${i}`;
                 tile.onclick = () => { if (state.myWord) return; if (tile.parentElement === word) returnToEmptySlot(tile); else word.appendChild(tile); };
@@ -1051,8 +1287,80 @@
         }
 
         function startTimer() { clearInterval(timerId); updateTimerDisplay(); timerId = setInterval(() => { state.timeLeft--; updateTimerDisplay(); if (state.timeLeft <= 0) { clearInterval(timerId); timeUp(); } }, 1000); }
-        function updateTimerDisplay() { document.getElementById('timer-val').innerText = state.timeLeft; }
+        function updateTimerDisplay() {
+            const el = document.getElementById('timer-val');
+            el.innerText = state.timeLeft;
+            if (state.timeLeft <= 10) el.style.color = '#FF5F22';
+            else if (state.timeLeft <= 20) el.style.color = '#FFB900';
+            else el.style.color = '#FFFFFF';
+        }
         function timeUp() { if (!state.myWord) submitWord(true); }
+
+        function animateFailureAndReset(tiles) {
+            const wordZone = document.getElementById('word-zone');
+            const poolZone = document.getElementById('pool-zone');
+            const btn = document.getElementById('btn-action');
+
+            tiles.forEach((t, index) => {
+                setTimeout(() => {
+                    t.classList.remove('validating');
+                    t.classList.add('fail');
+                }, index * 80);
+            });
+
+            // Add error class to container
+            const container = document.querySelector('.word-zone-container');
+            container.classList.add('container-error');
+
+            setTimeout(() => {
+                tiles.forEach(t => {
+                    t.classList.remove('fail');
+                    t.style.transform = ''; // Reset any transform applied by shake
+                    t.style.backgroundColor = ''; // Explicitly clear inline background color if any
+                });
+
+                // Move tiles back to pool
+                // Collect tiles from wordZone first to avoid issues with live NodeList
+                const tilesToMove = Array.from(wordZone.children);
+                tilesToMove.forEach(tile => {
+                    // Reset class to base tile class to ensure no residual state classes
+                    tile.className = 'tile';
+
+                    // Find an empty slot in the pool or just append
+                    const slots = poolZone.querySelectorAll('.slot');
+                    let moved = false;
+                    for (let s of slots) {
+                        if (s.children.length === 0) {
+                            s.appendChild(tile);
+                            moved = true;
+                            break;
+                        }
+                    }
+                    if (!moved) { // Fallback if no empty slot found
+                        const slot = document.createElement('div');
+                        slot.className = 'slot';
+                        slot.appendChild(tile);
+                        poolZone.appendChild(slot);
+                    }
+                    // Re-bind click handler to move to word zone
+                    tile.onclick = () => { if (state.myWord) return; if (tile.parentElement.parentElement === poolZone) wordZone.appendChild(tile); else returnToEmptySlot(tile); };
+
+                    // Force remove any inline styles that might persist
+                    tile.removeAttribute('style');
+                });
+
+                state.myWord = null; // Reset myWord state
+                btn.disabled = false;
+                btn.innerText = "Validar";
+                btn.style.opacity = "1"; // Reset opacity
+
+                // Reset container width to full and remove error class
+                const container = document.querySelector('.word-zone-container');
+                container.style.width = '100%';
+                container.classList.remove('container-error');
+
+            }, 1000); // Duration for the fail animation and reset
+        }
 
         async function validateWord() {
             const btn = document.getElementById('btn-action'); btn.disabled = true; btn.innerText = "Validando...";
@@ -1067,32 +1375,57 @@
                 });
             };
 
+            const myTiles = document.querySelectorAll('#word-zone .tile');
+
             if (wordStr.length < 2) {
                 showToast("⚠️ Mínimo 2 letras");
-                btn.disabled = false; btn.innerText = "Validar";
                 doShake();
+                animateFailureAndReset(myTiles); // Call the new function for visual feedback and reset
                 return;
             }
-
-            const myTiles = document.querySelectorAll('#word-zone .tile');
-            myTiles.forEach((t, index) => { setTimeout(() => { t.classList.add('validating'); }, index * 80); });
-            await new Promise(r => setTimeout(r, 600));
 
             try {
                 const res = await fetch(`https://es.wiktionary.org/w/api.php?action=query&titles=${wordStr.toLowerCase()}&format=json&origin=*`);
                 const data = await res.json();
                 if (Object.keys(data.query.pages)[0] === "-1") {
-                    showToast(`❌ "${wordStr}" no existe`);
+                    showToast(`🚩 ¡No te inventes palabras!`); // Invalid word message
                     btn.disabled = false; btn.innerText = "Validar";
                     myTiles.forEach(t => t.classList.remove('validating'));
                     doShake();
+                    animateFailureAndReset(myTiles);
                     return;
                 }
-            } catch (e) { }
+            } catch (e) {
+                // Re-enable button on error
+                const btn = document.getElementById('btn-action');
+                btn.disabled = false;
+                btn.innerText = "Validar";
+                return;
+            }
+
+            // Success - Trigger validation animation and shrink container
+            shrinkContainer();
+            myTiles.forEach((t, index) => { setTimeout(() => { t.classList.add('validating'); }, index * 80); });
+            await new Promise(r => setTimeout(r, 800)); // Wait for animation
 
             if (state.mode === 'SOLO') {
                 animateSuccessAndClear(myTiles);
+                showGameStatus("👏 ¡Palabra correcta!", 2000);
                 btn.innerText = "¡Correcto!";
+
+                // Update score immediately for SOLO
+                const score = wordStr.length; // Simple scoring: 1 point per letter? Or use existing logic?
+                // Existing logic is in finishRound usually. Let's just add length for now or reuse logic.
+                // Actually, let's just do:
+                state.myScore += wordStr.length;
+                document.getElementById('score-p1').innerText = state.myScore;
+                updateAddedScore('added-p1', wordStr.length, 'win');
+                setTimeout(() => document.getElementById('score-p1').classList.add('pop'), 50);
+                setTimeout(() => document.getElementById('score-p1').classList.remove('pop'), 350);
+
+                setTimeout(() => {
+                    hostGameLogic(); // Start new round directly
+                }, 2000);
                 return;
             }
             submitWord(false, wordStr);
@@ -1102,38 +1435,41 @@
             document.getElementById('pool-zone').innerHTML = '';
             tiles.forEach((t, index) => { setTimeout(() => { t.classList.add('success'); }, index * 50); });
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            // The message "👏 ¡Palabra correcta!" is now handled by showGameStatus in validateWord with a duration.
         }
 
         function submitWord(forced, wordStr = "") {
             state.myWord = wordStr;
             const btn = document.getElementById('btn-action');
             btn.disabled = true;
-            btn.innerText = "Esperando...";
+            btn.innerText = "Enviado";
+            btn.style.opacity = "0.4";
 
             // Clear pool to avoid stuck hover states
             document.getElementById('pool-zone').innerHTML = '';
 
-            if (state.mode === 'MULTI' && !state.oppWord) btn.innerText = `Esperando a ${state.oppName}...`;
+            if (state.mode === 'MULTI' && !state.oppWord) {
+                showGameStatus(`🥱 Esperando a ${state.oppName}...`); // Waiting message
+            }
             if (state.mode === 'MULTI') {
-                // Shrink container animation for MULTI
-                const container = document.querySelector('.word-zone-container');
-                const tiles = document.querySelectorAll('#word-zone .tile');
-                const tileWidth = 32;
-                const tileGap = 4;
-                const containerPadding = 16;
-                const contentWidth = (tiles.length * tileWidth) + ((tiles.length - 1) * tileGap) + containerPadding;
-                container.style.width = `${contentWidth}px`;
-
+                // Container already shrunk in validateWord
                 sendData({ type: 'SUBMIT', word: wordStr });
                 checkEndRound();
             }
         }
 
-        function checkEndRound() { if (state.myWord !== null && state.oppWord !== null) { clearInterval(timerId); finishRound(); } }
+        function checkEndRound() {
+            if (state.myWord !== null && state.oppWord !== null) {
+                clearInterval(timerId);
+                hideGameStatus(); // Hide any status message
+                finishRound();
+            }
+        }
 
         function finishRound() {
             document.getElementById('card-timer').classList.add('collapsed');
-            const myLen = state.myWord.length; const oppLen = state.oppWord.length;
+            const myLen = state.myWord ? state.myWord.length : 0;
+            const oppLen = state.oppWord ? state.oppWord.length : 0;
 
             let type = "DRAW";
             let p1AddScore = 0, p2AddScore = 0;
@@ -1155,7 +1491,7 @@
             updateAddedScore('added-p1', p1AddScore, p1Class);
             updateAddedScore('added-p2', p2AddScore, p2Class);
 
-            updateAvatars();
+            updateAvatars(type);
             showResultPanel(type);
 
             setTimeout(() => {
@@ -1171,56 +1507,122 @@
             const scoreEl = document.getElementById(`score-${player}`);
             const isP1 = player === 'p1';
 
-            addedEl.classList.add('score-fly');
+            // Just show added score statically
+            addedEl.classList.remove('hidden');
+            addedEl.classList.add('visible');
+
+            // Update total score immediately (or after a short delay if preferred, but user asked for static added points)
+            // Let's keep the logic where added points stay visible for a bit then disappear?
+            // "Pon los puntos que se añaden al lado del total pero estáticos" -> "Put the added points next to total but static"
+            // "Que desaparezcan (solo con fade) y se anime el total" -> "Make them disappear (fade only) and animate total"
 
             setTimeout(() => {
-                scoreEl.innerText = isP1 ? state.myScore : state.oppScore;
-                scoreEl.classList.add('pop');
-                setTimeout(() => scoreEl.classList.remove('pop'), 300);
-                addedEl.classList.remove('score-fly');
-                addedEl.classList.add('hidden');
-            }, 1000);
+                // Hide added score (fade out)
+                addedEl.classList.remove('visible');
+
+                setTimeout(() => {
+                    addedEl.classList.add('hidden');
+                    // Update total score and pop
+                    scoreEl.innerText = isP1 ? state.myScore : state.oppScore;
+
+                    // Check if it was a draw to apply yellow color to pop
+                    const isDraw = addedEl.classList.contains('draw');
+                    if (isDraw) scoreEl.style.color = 'var(--warning)';
+
+                    scoreEl.classList.add('pop');
+
+                    setTimeout(() => {
+                        scoreEl.classList.remove('pop');
+                        scoreEl.style.color = ''; // Reset color
+                    }, 300);
+                }, 500); // Wait for fade out
+            }, 1500); // Keep them visible for 1.5s
         }
 
         function updateAddedScore(id, score, cls) {
             const el = document.getElementById(id);
             if (cls && score > 0) {
-                el.innerText = `+${score}`; el.className = `added ${cls}`; el.classList.remove('hidden');
-            } else { el.classList.add('hidden'); }
+                el.innerText = `+${score}`;
+                el.className = `added ${cls}`; // Reset classes, keep 'added' and type
+                // Don't show yet, wait for animation trigger
+            } else {
+                el.classList.add('hidden');
+                el.classList.remove('visible');
+            }
+        }
+
+        function shrinkContainer() {
+            const container = document.querySelector('.word-zone-container');
+            const tiles = document.querySelectorAll('#word-zone .tile');
+            const tileWidth = 32;
+            const tileGap = 4;
+            const containerPadding = 16; // 8px padding on each side (if any, or just visual buffer)
+            // Actually .word-zone has gap 4px. Container has no padding defined in CSS but let's keep the logic if it looked good.
+            // Wait, .word-zone-container is just a wrapper. .word-zone is the flex container.
+            // If we shrink the wrapper, we center the content.
+            // Let's calculate exact width needed.
+            const contentWidth = (tiles.length * tileWidth) + ((tiles.length - 1) * tileGap) + 16; // +16 for safety/padding
+            container.style.width = `${contentWidth}px`;
         }
 
         function showResultPanel(type) {
             document.getElementById('game-active-area').classList.add('hidden');
             document.getElementById('result-panel').classList.remove('hidden');
 
+            // Update avatars based on result
+            updateAvatars(type);
+
             const icon = document.getElementById('res-icon');
             const title = document.getElementById('res-title');
             const subtitle = document.getElementById('res-subtitle');
 
-            // Reset opacities if they were changed by previous animation attempts
+            const myContainer = document.getElementById('res-my-word');
+            const oppContainer = document.getElementById('res-opp-word');
+
+            // Reset visibility and opacities
             [icon, title, subtitle].forEach(el => el.style.opacity = '1');
+            myContainer.style.display = 'inline-flex';
+            oppContainer.style.display = 'inline-flex';
 
             if (type === 'WIN') {
                 icon.innerText = "🎉"; title.innerText = "¡Has ganado!";
-                subtitle.innerText = `${state.oppName} ha perdido con:`;
+                if (state.oppWord) {
+                    subtitle.innerText = `${state.oppName} ha perdido con:`;
+                    renderResultTiles('res-opp-word', state.oppWord, 'fail');
+                    oppContainer.className = 'word-result-row container-lose';
+                } else {
+                    subtitle.innerText = `¡A ${state.oppName} se le ha acabado el tiempo!`;
+                    oppContainer.style.display = 'none'; // Hide container
+                }
                 renderResultTiles('res-my-word', state.myWord, 'success');
-                renderResultTiles('res-opp-word', state.oppWord, 'fail');
-                document.getElementById('res-my-word').className = 'word-result-row container-win';
-                document.getElementById('res-opp-word').className = 'word-result-row container-lose';
+                myContainer.className = 'word-result-row container-win';
             } else if (type === 'LOSE') {
-                icon.innerText = "😭"; title.innerText = "Oh... ¡has perdido!";
-                subtitle.innerText = `${state.oppName} ha ganado con:`;
-                renderResultTiles('res-my-word', state.myWord, 'fail');
+                if (!state.myWord) {
+                    icon.innerText = "⏳"; title.innerText = "¡Se acabó el tiempo!";
+                    subtitle.innerText = `${state.oppName} ha ganado con:`;
+                    myContainer.style.display = 'none'; // Hide container
+                } else {
+                    icon.innerText = "😭"; title.innerText = "Oh... ¡has perdido!";
+                    subtitle.innerText = `${state.oppName} ha ganado con:`;
+                    renderResultTiles('res-my-word', state.myWord, 'fail');
+                    myContainer.className = 'word-result-row container-lose';
+                }
                 renderResultTiles('res-opp-word', state.oppWord, 'success');
-                document.getElementById('res-my-word').className = 'word-result-row container-lose';
-                document.getElementById('res-opp-word').className = 'word-result-row container-win';
+                oppContainer.className = 'word-result-row container-win';
             } else {
-                icon.innerText = "🤝"; title.innerText = "¡Habéis empatado!";
-                subtitle.innerText = `${state.oppName} ha puesto:`;
-                renderResultTiles('res-my-word', state.myWord, 'draw');
-                renderResultTiles('res-opp-word', state.oppWord, 'draw');
-                document.getElementById('res-my-word').className = 'word-result-row container-draw';
-                document.getElementById('res-opp-word').className = 'word-result-row container-draw';
+                if (!state.myWord && !state.oppWord) {
+                    icon.innerText = "⏳"; title.innerText = "¡Se acabó el tiempo!";
+                    subtitle.innerText = "¡Habéis perdido los dos, vaya disgusto!";
+                    myContainer.style.display = 'none';
+                    oppContainer.style.display = 'none';
+                } else {
+                    icon.innerText = "🤝"; title.innerText = "¡Habéis empatado!";
+                    subtitle.innerText = `${state.oppName} ha puesto:`;
+                    renderResultTiles('res-my-word', state.myWord, 'draw');
+                    renderResultTiles('res-opp-word', state.oppWord, 'draw');
+                    myContainer.className = 'word-result-row container-draw';
+                    oppContainer.className = 'word-result-row container-draw';
+                }
             }
         }
 
@@ -1255,11 +1657,23 @@
             el.innerHTML = svgData;
         }
 
-        function updateAvatars() {
-            let p1State = 'neutral'; let p2State = 'neutral';
-            if (state.myScore > state.oppScore) { p1State = 'happy'; p2State = 'sad'; }
-            else if (state.myScore < state.oppScore) { p1State = 'sad'; p2State = 'happy'; }
-            setAvatar('icon-p1', p1State); setAvatar('icon-p2', p2State);
+        function updateAvatars(roundResult) {
+            let p1State = 'neutral';
+            let p2State = 'neutral';
+
+            if (roundResult) {
+                // End of round logic
+                if (roundResult === 'WIN') { p1State = 'happy'; p2State = 'sad'; }
+                else if (roundResult === 'LOSE') { p1State = 'sad'; p2State = 'happy'; }
+                else { p1State = 'neutral'; p2State = 'neutral'; }
+            } else {
+                // Start of game / Score based logic
+                if (state.myScore > state.oppScore) { p1State = 'happy'; p2State = 'sad'; }
+                else if (state.myScore < state.oppScore) { p1State = 'sad'; p2State = 'happy'; }
+                else { p1State = 'neutral'; p2State = 'neutral'; }
+            }
+            setAvatar('icon-p1', p1State);
+            setAvatar('icon-p2', p2State);
         }
 
         function triggerRematch() { if (state.mode === 'SOLO') hostGameLogic(); else { if (state.role === 'HOST') hostGameLogic(); else sendData({ type: 'REMATCH' }); } }
@@ -1286,7 +1700,7 @@
             const code = document.getElementById('friend-code').value.trim();
             if (!code) return showToast("Introduce un código");
             state.role = 'GUEST';
-            showToast("Conectando...");
+            // showToast("Conectando..."); // Removed to avoid overlap
             setupConn(peer.connect(code));
         }
         function setupConn(c) {
@@ -1296,9 +1710,22 @@
             else conn.on('open', sendHello);
 
             conn.on('data', (d) => {
-                if (d.type === 'HELLO') { state.oppName = d.name; startGameUI(); if (state.role === 'HOST') setTimeout(hostGameLogic, 500); }
+                if (d.type === 'HELLO') {
+                    state.oppName = d.name;
+                    startGameUI();
+                    showGameStatus(`✅ Te has conectado con ${state.oppName}`, 3000); // Connection message with 3s duration
+                    if (state.role === 'HOST') setTimeout(hostGameLogic, 500);
+                }
                 if (d.type === 'NEW_GAME') startRound(d.letters);
-                if (d.type === 'SUBMIT') { state.oppWord = d.word; checkEndRound(); if (state.myWord) document.getElementById('btn-action').innerText = "¡Rival listo!"; }
+                if (d.type === 'SUBMIT') {
+                    state.oppWord = d.word;
+                    checkEndRound();
+                    if (state.myWord) {
+                        // Both finished
+                    } else {
+                        showGameStatus(`⌛️ ¡${state.oppName} ya ha acabado!`); // Opponent finished first
+                    }
+                }
                 if (d.type === 'REMATCH') hostGameLogic();
             });
             conn.on('error', (err) => showToast("Error conexión: " + err));
@@ -1310,11 +1737,31 @@
             const code = document.getElementById('my-code').innerText;
             if (code.includes("...")) return;
             navigator.clipboard.writeText(code);
-            showToast("¡Código copiado! ✅");
+            const btn = document.querySelector('.btn-copy');
+            const originalText = btn.innerText;
+            btn.innerText = "Código copiado";
+            setTimeout(() => {
+                btn.innerText = "Copiar código";
+            }, 5000);
         }
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000);
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function showGameStatus(msg, duration = 0) {
+            const el = document.getElementById('game-status-message');
+            el.innerText = msg;
+            el.classList.add('visible');
+            if (duration > 0) {
+                setTimeout(() => el.classList.remove('visible'), duration);
+            }
+        }
+
+        function hideGameStatus() {
+            document.getElementById('game-status-message').classList.remove('visible');
         }
     </script>
 </body>
