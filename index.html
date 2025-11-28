@@ -670,6 +670,14 @@
             /* Keep high z-index for the tile itself */
         }
 
+        .tile span {
+            display: block;
+            will-change: transform;
+            animation-delay: inherit;
+            pointer-events: none;
+            /* Let clicks pass to tile */
+        }
+
         /* Tile Face (Color) */
         .tile::before {
             content: '';
@@ -818,7 +826,8 @@
             /* Remove animation from container */
         }
 
-        .tile.validating::before {
+        .tile.validating::before,
+        .tile.validating span {
             animation: waveJumpFace 0.3s ease-in-out;
         }
 
@@ -972,7 +981,8 @@
             --shadow-color: var(--success-dark) !important;
         }
 
-        .tile.success::before {
+        .tile.success::before,
+        .tile.success span {
             animation: waveJumpLoopFace 2s ease-in-out infinite;
         }
 
@@ -994,7 +1004,8 @@
             --shadow-color: var(--warning-dark) !important;
         }
 
-        .tile.draw::before {
+        .tile.draw::before,
+        .tile.draw span {
             animation: waveJumpLoopFace 2s ease-in-out infinite;
         }
 
@@ -1376,7 +1387,7 @@
             document.querySelector('.word-zone-container').style.width = '100%';
 
             letters.forEach((char, i) => {
-                const tile = document.createElement('div'); tile.className = 'tile'; tile.textContent = char; tile.id = `t-${i}`;
+                const tile = document.createElement('div'); tile.className = 'tile'; tile.innerHTML = `<span>${char}</span>`; tile.id = `t-${i}`;
                 tile.onclick = () => { if (state.myWord) return; if (tile.parentElement === word) returnToEmptySlot(tile); else word.appendChild(tile); };
                 const slot = document.createElement('div'); slot.className = 'slot'; slot.appendChild(tile); pool.appendChild(slot);
             });
@@ -1733,7 +1744,7 @@
             word.split('').forEach((char, index) => {
                 const tile = document.createElement('div');
                 tile.className = `tile`;
-                tile.textContent = char;
+                tile.innerHTML = `<span>${char}</span>`;
                 tile.style.animationDelay = `${index * 0.1}s`;
                 if (statusClass === 'success') tile.classList.add('success');
                 else if (statusClass === 'draw') tile.classList.add('draw');
