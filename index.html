@@ -582,7 +582,7 @@
 
         @media (hover: hover) {
             .word-zone .tile:hover {
-                background-color: rgba(0, 199, 252, 0.6);
+                --tile-color: rgba(0, 199, 252, 0.6);
             }
         }
 
@@ -657,12 +657,6 @@
             --tile-color: var(--primary);
             --shadow-color: var(--primary-dark);
 
-            /* Solid background */
-            background-color: var(--tile-color);
-
-            /* Box Shadow removed, replaced by ::after */
-            /* box-shadow: 0 4px 0 var(--shadow-color); */
-
             /* Mobile Optimization */
             will-change: transform;
             transform: translate3d(0, 0, 0);
@@ -670,7 +664,24 @@
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             position: relative;
-            /* Ensure relative positioning for pseudo-element */
+            background-color: transparent !important;
+            /* Ensure no background on container */
+            z-index: 5;
+            /* Keep high z-index for the tile itself */
+        }
+
+        /* Tile Face (Color) */
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--tile-color);
+            border-radius: inherit;
+            z-index: -1;
+            /* Behind text */
         }
 
         /* Shadow/Extrusion using pseudo-element */
@@ -683,7 +694,8 @@
             height: calc(100% + 4px);
             /* Default resting height (100% + 4px shadow) */
             background-color: var(--shadow-color);
-            z-index: -1;
+            z-index: -2;
+            /* Behind face */
             border-radius: inherit;
             transition: height 0.1s;
             will-change: height;
