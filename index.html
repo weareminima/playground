@@ -660,15 +660,33 @@
             /* Solid background */
             background-color: var(--tile-color);
 
-            /* Box Shadow for 3D effect */
-            box-shadow: 0 4px 0 var(--shadow-color);
+            /* Box Shadow removed, replaced by ::after */
+            /* box-shadow: 0 4px 0 var(--shadow-color); */
 
             /* Mobile Optimization */
-            will-change: transform, box-shadow;
+            will-change: transform;
             transform: translate3d(0, 0, 0);
             -webkit-font-smoothing: antialiased;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            position: relative;
+            /* Ensure relative positioning for pseudo-element */
+        }
+
+        /* Shadow/Extrusion using pseudo-element */
+        .tile::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% + 4px);
+            /* Default resting height (100% + 4px shadow) */
+            background-color: var(--shadow-color);
+            z-index: -1;
+            border-radius: inherit;
+            transition: height 0.1s;
+            will-change: height;
         }
 
         @media (hover: hover) {
@@ -680,7 +698,11 @@
 
         .tile:active {
             transform: translate3d(0, 4px, 0);
-            box-shadow: 0 0 0 var(--shadow-color);
+        }
+
+        .tile:active::after {
+            height: 100%;
+            /* Compressed state */
         }
 
         /* Animaciones */
@@ -728,66 +750,107 @@
             --shadow-color: var(--danger-dark) !important;
         }
 
-        @keyframes waveJump {
+        @keyframes waveJumpTile {
             0% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             40% {
                 transform: translate3d(0, -14px, 0);
-                box-shadow: 0 18px 0 var(--shadow-color);
             }
 
             70% {
                 transform: translate3d(0, 4px, 0);
-                box-shadow: 0 0px 0 var(--shadow-color);
             }
 
             85% {
                 transform: translate3d(0, -4px, 0);
-                box-shadow: 0 8px 0 var(--shadow-color);
             }
 
             100% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
+            }
+        }
+
+        @keyframes waveJumpShadow {
+            0% {
+                height: calc(100% + 4px);
+            }
+
+            40% {
+                height: calc(100% + 18px);
+            }
+
+            70% {
+                height: 100%;
+            }
+
+            85% {
+                height: calc(100% + 8px);
+            }
+
+            100% {
+                height: calc(100% + 4px);
             }
         }
 
         .tile.validating {
-            animation: waveJump 0.3s ease-in-out;
+            animation: waveJumpTile 0.3s ease-in-out;
         }
 
-        @keyframes waveJumpLoop {
+        .tile.validating::after {
+            animation: waveJumpShadow 0.3s ease-in-out;
+        }
+
+        @keyframes waveJumpLoopTile {
             0% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             8% {
                 transform: translate3d(0, -14px, 0);
-                box-shadow: 0 18px 0 var(--shadow-color);
             }
 
             14% {
                 transform: translate3d(0, 4px, 0);
-                box-shadow: 0 0px 0 var(--shadow-color);
             }
 
             17% {
                 transform: translate3d(0, -4px, 0);
-                box-shadow: 0 8px 0 var(--shadow-color);
             }
 
             20% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
             }
 
             100% {
                 transform: translate3d(0, 0, 0);
-                box-shadow: 0 4px 0 var(--shadow-color);
+            }
+        }
+
+        @keyframes waveJumpLoopShadow {
+            0% {
+                height: calc(100% + 4px);
+            }
+
+            8% {
+                height: calc(100% + 18px);
+            }
+
+            14% {
+                height: 100%;
+            }
+
+            17% {
+                height: calc(100% + 8px);
+            }
+
+            20% {
+                height: calc(100% + 4px);
+            }
+
+            100% {
+                height: calc(100% + 4px);
             }
         }
 
@@ -879,10 +942,14 @@
         }
 
         .tile.success {
-            animation: waveJumpLoop 2s ease-in-out infinite;
+            animation: waveJumpLoopTile 2s ease-in-out infinite;
             --tile-color: var(--success) !important;
             color: #101012 !important;
             --shadow-color: var(--success-dark) !important;
+        }
+
+        .tile.success::after {
+            animation: waveJumpLoopShadow 2s ease-in-out infinite;
         }
 
         .tile.fail {
@@ -895,8 +962,12 @@
         .tile.draw {
             --tile-color: var(--warning) !important;
             color: #101012 !important;
-            animation: waveJumpLoop 2s ease-in-out infinite;
+            animation: waveJumpLoopTile 2s ease-in-out infinite;
             --shadow-color: var(--warning-dark) !important;
+        }
+
+        .tile.draw::after {
+            animation: waveJumpLoopShadow 2s ease-in-out infinite;
         }
 
         /* Staggering for result tiles */
