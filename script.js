@@ -664,16 +664,30 @@ async function validateWord() {
     }
 
     try {
-        // 1. Try exact match (Lightweight)
-        let res = await fetch(`https://es.wiktionary.org/w/api.php?action=query&titles=${wordStr.toLowerCase()}&format=json&origin=*`);
+        // 1. Try exact match (Lightweight + Extract)
+        // We need 'extracts' to check for "== Español =="
+        let res = await fetch(`https://es.wiktionary.org/w/api.php?action=query&titles=${wordStr.toLowerCase()}&prop=extracts&explaintext&format=json&origin=*`);
         let data = await res.json();
 
         let validPage = null;
         let pages = data.query.pages;
+
+        // Helper to check if page is valid Spanish
+        const isSpanish = (page) => {
+            if (!page || page.missing !== undefined) return false;
+            if (!page.extract) return false; // No text? Suspicious.
+            return page.extract.includes('== Español ==');
+        };
+
         if (Object.keys(pages)[0] !== "-1") {
-            validPage = Object.values(pages)[0];
-        } else {
-            // 2. Fuzzy match: Try adding accents (Lightweight)
+            const p = Object.values(pages)[0];
+            if (isSpanish(p)) {
+                validPage = p;
+            }
+        }
+
+        if (!validPage) {
+            // 2. Fuzzy match: Try adding accents (Lightweight + Extract)
             const vowels = { 'a': 'á', 'e': 'é', 'i': 'í', 'o': 'ó', 'u': 'ú' };
             const candidates = [];
             const lower = wordStr.toLowerCase();
@@ -688,14 +702,17 @@ async function validateWord() {
 
             if (candidates.length > 0) {
                 const titles = candidates.join('|');
-                res = await fetch(`https://es.wiktionary.org/w/api.php?action=query&titles=${titles}&format=json&origin=*`);
+                res = await fetch(`https://es.wiktionary.org/w/api.php?action=query&titles=${titles}&prop=extracts&explaintext&format=json&origin=*`);
                 data = await res.json();
                 pages = data.query.pages;
 
                 for (const pageId in pages) {
                     if (pageId !== "-1") {
-                        validPage = pages[pageId];
-                        break;
+                        const p = pages[pageId];
+                        if (isSpanish(p)) {
+                            validPage = p;
+                            break;
+                        }
                     }
                 }
             }
