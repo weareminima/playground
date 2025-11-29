@@ -1,0 +1,1333 @@
+@font-face {
+    font-family: 'GameFont';
+    src: url('Recursos/GameFont.ttf') format('truetype');
+    font-weight: 100 900;
+    /* Soporta todos los pesos (Variable Font) */
+    font-style: normal;
+}
+
+:root {
+    /* Colores */
+    --bg-body: #101012;
+    --primary: #00C7FC;
+    --primary-dark: #009ec9;
+    --primary-20: rgba(0, 199, 252, 0.2);
+    --primary-10: rgba(0, 199, 252, 0.1);
+    --primary-05: rgba(0, 199, 252, 0.05);
+    --success: #00EA71;
+    --success-dark: #00b558;
+    --warning: #FFB900;
+    --warning-dark: #cc9400;
+    --danger: #FF5F22;
+    --danger-dark: #cc4c1b;
+    --white: #FFFFFF;
+    --input-bg: #1C1C1E;
+
+    /* UI */
+    --font: 'GameFont', 'DM Sans', sans-serif;
+    --radius-btn: 16px;
+    --radius-card: 20px;
+    --radius-tile: 16px;
+    --radius-tile-sm: 8px;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font);
+    font-variation-settings: 'ROND' 100;
+    background-color: var(--bg-body);
+
+    /* --- IMAGEN DE FONDO RECUPERADA --- */
+    background-image: url('Recursos/Background.jpg');
+    background-size: min(100%, 600px) auto;
+    /* Ancho completo, mantiene proporción */
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-attachment: fixed;
+    /* Fijo para que no se mueva */
+
+    color: var(--white);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+/* Clase para quitar fondo SOLO al jugar */
+body.no-bg {
+    background-image: none;
+    background-color: #101012;
+}
+
+/* Logo Styles */
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.logo-icon {
+    display: flex;
+    gap: 8px;
+}
+
+.logo-tile {
+    width: 48px;
+    height: 48px;
+    background-color: var(--primary);
+    color: #000;
+    font-size: 28px;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 0 var(--primary-dark);
+    transform: rotate(-5deg);
+}
+
+.logo-tile:nth-child(2) {
+    transform: rotate(3deg) translateY(-4px);
+}
+
+.logo-tile:nth-child(3) {
+    transform: rotate(-3deg);
+}
+
+.logo-tile:nth-child(4) {
+    transform: rotate(5deg) translateY(-2px);
+}
+
+.logo-text {
+    font-family: 'GameFont', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+}
+
+/* Intro Actions */
+.intro-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 16px;
+    background: var(--input-bg);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    color: var(--white);
+    font-size: 18px;
+    font-family: inherit;
+    text-align: center;
+    text-align: center;
+    margin-bottom: 0 !important;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+}
+
+
+
+
+
+/* Training Mode Scoreboard Adjustments */
+body.training-mode #p1-name {
+    display: none;
+}
+
+
+/* Pantallas */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 24px 32px 24px;
+    transition: opacity 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Intro & Connect: Alineados abajo con degradado */
+
+
+#screen-connect {
+    justify-content: flex-end;
+    /* Degradado para que el texto se lea sobre la imagen */
+    background: linear-gradient(to bottom,
+            rgba(16, 16, 18, 0) 0%,
+            rgba(16, 16, 18, 0.4) 40%,
+            rgba(16, 16, 18, 0.98) 75%,
+            rgba(16, 16, 18, 1) 100%);
+}
+
+#screen-intro,
+#screen-name-input {
+    /* Degradado para que el texto se lea sobre la imagen */
+    background: linear-gradient(to bottom,
+            rgba(16, 16, 18, 0) 0%,
+            rgba(16, 16, 18, 0.4) 40%,
+            rgba(16, 16, 18, 0.98) 75%,
+            rgba(16, 16, 18, 1) 100%);
+}
+
+/* Name Input Specific Adjustments */
+#screen-name-input .logo-container {
+    gap: 32px;
+    margin-bottom: 16px;
+}
+
+#screen-name-input .logo-text {
+    font-size: 40px;
+    font-family: 'GameFont', sans-serif;
+    font-weight: 500;
+}
+
+
+
+#screen-game {
+    justify-content: flex-start;
+    background: #101012;
+    overflow-y: auto;
+}
+
+/* Logo */
+.logo-svg {
+    width: 100%;
+    padding: 0 32px;
+    height: auto;
+    align-self: center;
+    box-sizing: border-box;
+    display: block;
+}
+
+.logo-game-svg {
+    width: auto;
+    height: 24px;
+    margin-top: 8px;
+    /* 24px padding + 8px = 32px visual top margin */
+    margin-bottom: 32px;
+    align-self: center;
+    display: flex;
+    /* Ensure it behaves as a container */
+    justify-content: center;
+}
+
+/* Tipografía */
+h2 {
+    font-size: 2rem;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+    text-align: center;
+    color: white;
+}
+
+.text-white {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    text-align: center;
+}
+
+.text-small {
+    font-size: 0.9rem;
+    color: #888;
+    text-align: center;
+}
+
+.intro-text {
+    margin-bottom: 16px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Inputs */
+input[type="text"] {
+    background: transparent;
+    box-shadow: none;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    height: 56px;
+    border-radius: var(--radius-btn);
+    font-family: var(--font);
+    font-variation-settings: 'ROND' 100;
+    font-size: 16px;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 0;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    opacity: 1;
+}
+
+input[type="text"]:hover,
+input[type="text"]:focus {
+    border-color: var(--primary) !important;
+}
+
+/* Botones */
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn {
+    height: 56px;
+    border-radius: var(--radius-btn);
+    border: none;
+    font-family: var(--font);
+    font-variation-settings: 'ROND' 100;
+    font-weight: 600;
+    font-size: 18px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.1s;
+    padding: 0 32px;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-auto {
+    width: auto;
+    min-width: 140px;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: #101012;
+    box-shadow: inset 0 -6px 0 rgba(16, 16, 18, 0.2);
+}
+
+.btn-secondary,
+.btn-soft-blue {
+    background-color: var(--primary-20);
+    color: var(--white);
+    box-shadow: inset 0 -6px 0 rgba(16, 16, 18, 0.2);
+}
+
+.btn-white {
+    background-color: var(--white);
+    color: #101012;
+    box-shadow: inset 0 -6px 0 rgba(16, 16, 18, 0.2);
+}
+
+.btn-ghost {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    box-shadow: none;
+    font-size: 16px;
+}
+
+/* Estilo Deshabilitado (Esperando...) */
+.btn:disabled {
+    background-color: #2C2C2E !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid #444 !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    transform: none;
+    margin-bottom: 0;
+}
+
+/* Código ID - Legacy/Updated */
+.code-wrapper {
+    background: rgba(0, 199, 252, 0.05);
+    border-radius: 24px;
+    padding: 8px;
+    margin-top: 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.code-display {
+    font-family: monospace;
+    color: var(--primary);
+    font-size: 14px;
+    text-align: center;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    word-break: break-all;
+    padding: 0 10px;
+}
+
+.btn-copy {
+    background-color: var(--primary-20);
+    color: var(--white);
+    box-shadow: inset 0 -6px 0 rgba(16, 16, 18, 0.2);
+    border: none;
+    border-radius: 16px;
+    height: 56px;
+    font-family: var(--font);
+    font-variation-settings: 'ROND' 100;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.1s;
+}
+
+.btn-copy:active {
+    transform: scale(0.98);
+}
+
+/* Connect Screen Specifics */
+#screen-connect h2 {
+    font-size: 40px;
+    font-weight: 500;
+    margin-bottom: 32px;
+}
+
+.connect-instruction {
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#friend-code {
+    margin-bottom: 8px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    font-weight: 400;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #333;
+    margin: 0 10px;
+}
+
+/* Game Board */
+.scoreboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 32px;
+    transition: gap 0.5s;
+}
+
+/* Remove gap when timer is collapsed to rely on margin or just 0 gap if margin is used */
+.scoreboard-container:has(.timer-card.collapsed) {
+    gap: 0;
+}
+
+.score-card {
+    background: rgba(0, 199, 252, 0.1);
+    border-radius: 32px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 120px;
+    position: relative;
+}
+
+/* Force gap when timer is collapsed */
+.scoreboard-container:has(.timer-card.collapsed) .score-card:first-child {
+    margin-right: 8px;
+}
+
+.score-card span {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.avatar-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.score-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    width: 100%;
+}
+
+.score-card .val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    transition: transform 0.2s;
+}
+
+/* Animación POP marcador */
+.score-card .val.pop {
+    animation: scorePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: var(--success);
+}
+
+@keyframes scorePop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.4);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.score-card .added {
+    font-size: 1rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.5s;
+    position: absolute;
+    left: 50%;
+    transform: translateX(20px);
+    /* Offset from center */
+    white-space: nowrap;
+}
+
+.score-card .added.visible {
+    opacity: 1;
+}
+
+.added.win {
+    color: var(--success);
+}
+
+.added.draw {
+    color: var(--warning);
+}
+
+.timer-card {
+    background: rgba(0, 199, 252, 0.1);
+    border-radius: 32px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    height: 120px;
+    transition: width 0.5s, opacity 0.5s, padding 0.5s;
+}
+
+.timer-card span {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+}
+
+.timer-card.collapsed {
+    width: 0;
+    padding: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin: 0;
+    /* The gap is handled by the container, but we might need to trick it if flex gap persists */
+}
+
+/* Removed scoreFly animation */
+
+.timer-big {
+    font-size: 48px !important;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.timer-label {
+    font-size: 12px !important;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.word-zone-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    transition: width 0.2s ease-out;
+    margin-bottom: 32px;
+    height: 56px;
+
+    /* Restored visual styles */
+    background: rgba(0, 199, 252, 0.1);
+    border: 2px solid rgba(0, 199, 252, 0.05);
+    border-radius: 20px;
+    padding: 8px;
+    box-sizing: border-box;
+    align-items: center;
+    margin-left: auto;
+    /* Fix centering */
+    margin-right: auto;
+    /* Fix centering */
+}
+
+.container-win {
+    background: rgba(0, 234, 113, 0.1) !important;
+    border-color: rgba(0, 234, 113, 0.05) !important;
+}
+
+.container-lose {
+    background: rgba(255, 95, 34, 0.1) !important;
+    border-color: rgba(255, 95, 34, 0.05) !important;
+}
+
+.container-error {
+    background: rgba(255, 95, 34, 0.1) !important;
+    border: 2px solid rgba(255, 95, 34, 0.05);
+    /* Explicit border to override default if needed */
+    border-radius: 20px;
+    /* Ensure radius is kept */
+}
+
+.container-draw {
+    background: rgba(255, 185, 0, 0.1) !important;
+    border-color: rgba(255, 185, 0, 0.05) !important;
+}
+
+.word-zone {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100%;
+    /* Fill container to be a valid drop target */
+}
+
+.word-zone .tile {
+    width: 32px;
+    height: 40px;
+    font-size: 24px;
+    border-radius: 12px;
+    /* Inherit main tile styles */
+    color: #000;
+}
+
+@media (hover: hover) {
+    .word-zone .tile:hover {
+        --tile-color: rgba(0, 199, 252, 0.6);
+    }
+}
+
+.word-zone .tile:active {
+    transform: translateY(3px);
+    /* box-shadow handled by ::after */
+}
+
+.word-result-row {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+
+    /* Container styles applied here too */
+    background: rgba(0, 199, 252, 0.1);
+    border: 2px solid rgba(0, 199, 252, 0.05);
+    border-radius: 20px;
+    padding: 8px;
+    width: auto;
+    display: inline-flex;
+    min-height: 56px;
+    align-items: center;
+}
+
+.word-result-row .tile {
+    width: 32px;
+    height: 40px;
+    font-size: 24px;
+    border-radius: 12px;
+    /* Inherit main tile styles */
+    /* Inherit main tile styles */
+    color: #000;
+}
+
+.word-result-row .tile.fail {
+    --tile-color: var(--danger) !important;
+    color: #101012 !important;
+    --shadow-color: var(--danger-dark) !important;
+}
+
+.pool-zone {
+    display: grid;
+    grid-template-columns: repeat(5, min(64px, 17vw));
+    gap: 8px;
+    justify-content: center;
+    /* margin-bottom: auto; Removed to fix centering */
+    transition: opacity 0.3s;
+}
+
+.slot {
+    width: min(64px, 17vw);
+    height: min(80px, 21.25vw);
+    background: rgba(0, 199, 252, 0.05);
+    border-radius: var(--radius-tile);
+    box-shadow: none;
+}
+
+.tile {
+    width: min(64px, 17vw);
+    height: min(80px, 21.25vw);
+    background-color: var(--tile-color);
+    /* Solid color */
+    color: #000;
+    font-size: min(48px, 12vw);
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s;
+    position: relative;
+    z-index: 5;
+
+    /* Default Colors */
+    --tile-color: var(--primary);
+    --shadow-color: var(--primary-dark);
+
+    /* Mobile Optimization */
+    touch-action: none;
+    /* Prevent scrolling while dragging */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    -webkit-font-smoothing: antialiased;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    position: relative;
+    background-color: transparent !important;
+    /* Ensure no background on container */
+    z-index: 5;
+    /* Keep high z-index for the tile itself */
+}
+
+/* Animation for dealing cards */
+@keyframes deal {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) rotate(10deg) scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg) scale(1);
+    }
+}
+
+.tile.deal {
+    /* Increased bounce factor in bezier and slightly longer duration */
+    animation: deal 0.3s cubic-bezier(0.25, 2, 0.5, 1) backwards;
+}
+
+.tile span {
+    display: block;
+    will-change: transform;
+    animation-delay: inherit;
+    pointer-events: none;
+    /* Let clicks pass to tile */
+}
+
+/* Tile Face (Color) */
+.tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--tile-color);
+    border-radius: inherit;
+    z-index: -1;
+    /* Behind text */
+    will-change: transform;
+    animation-delay: inherit;
+}
+
+/* Drag and Drop Styles */
+.tile.dragging {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none !important;
+    /* Let events pass through to detect drop zones */
+    opacity: 0.9;
+    transform: scale(1.1) rotate(var(--drag-rotate, 5deg)) !important;
+    /* Pop effect */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transition: none;
+    /* No transition during drag for responsiveness */
+}
+
+.tile.placeholder {
+    opacity: 0.3;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    pointer-events: none !important;
+    /* Crucial: let events pass through to the drop zone underneath */
+}
+
+/* Shadow/Extrusion using pseudo-element */
+.tile::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    /* Anchor to bottom */
+    left: 0;
+    width: 100%;
+    height: calc(100% + 4px);
+    /* Initial height to reach top */
+    background-color: var(--shadow-color);
+    z-index: -2;
+    /* Behind face */
+    border-radius: inherit;
+    transition: height 0.1s;
+    will-change: height;
+    animation-delay: inherit;
+    /* Inherit delay from parent for sync */
+}
+
+@media (hover: hover) {
+    .tile:hover {
+        --tile-color: #00B3E3;
+        animation: squash 0.5s ease-in-out;
+    }
+}
+
+.tile:active {
+    transform: translate3d(0, 4px, 0);
+}
+
+.tile:active::after {
+    height: 100%;
+    /* Compressed state */
+}
+
+/* Animaciones */
+@keyframes squash {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02, 0.98);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-4px) rotate(-2deg);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(4px) rotate(2deg);
+    }
+}
+
+.tile.shake {
+    animation: shake 0.4s ease-in-out;
+    --tile-color: var(--danger) !important;
+    color: #101012 !important;
+    --shadow-color: var(--danger-dark) !important;
+}
+
+@keyframes waveJumpFace {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    40% {
+        transform: translate3d(0, -16px, 0);
+    }
+
+    /* Higher jump */
+    70% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    85% {
+        transform: translate3d(0, -6px, 0);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes waveJumpShadow {
+    0% {
+        height: calc(100% + 4px);
+    }
+
+    40% {
+        height: calc(100% + 20px);
+    }
+
+    /* Match jump height + 4px */
+    70% {
+        height: calc(100% + 4px);
+    }
+
+    85% {
+        height: calc(100% + 10px);
+    }
+
+    100% {
+        height: calc(100% + 4px);
+    }
+}
+
+.tile.validating {
+    animation: none;
+    /* Remove animation from container */
+}
+
+.tile.validating::before,
+.tile.validating span {
+    animation: waveJumpFace 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tile.validating::after {
+    animation: waveJumpShadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes floatLoopFace {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    50% {
+        transform: translate3d(0, -20px, 0);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes floatLoopShadow {
+    0% {
+        height: calc(100% + 4px);
+    }
+
+    50% {
+        height: calc(100% + 24px);
+    }
+
+    100% {
+        height: calc(100% + 4px);
+    }
+}
+
+@keyframes winElevation {
+
+    /* Exact copy of waveJump */
+    0% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-14px);
+    }
+
+    70% {
+        transform: translateY(4px);
+    }
+
+    85% {
+        transform: translateY(-4px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* drawShadow uses winShadow keyframes */
+
+/* drawShadow uses same keyframes as winShadow, just different color handled by var */
+
+@keyframes winExplosion {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    30% {
+        transform: scale(1.4) rotate(-15deg);
+    }
+
+    60% {
+        transform: scale(1.1) rotate(10deg);
+        background-color: var(--success);
+        color: black;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        background-color: var(--success);
+        color: black;
+    }
+}
+
+@keyframes drawHighlight {
+    0% {
+        transform: scale(1);
+        background-color: var(--warning);
+    }
+
+    50% {
+        transform: scale(1.1);
+        background-color: var(--warning);
+    }
+
+    100% {
+        transform: scale(1);
+        background-color: var(--warning);
+    }
+}
+
+@keyframes scoreSlideLeft {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+}
+
+.score-fly {
+    animation: scoreSlideLeft 0.8s ease-out forwards;
+}
+
+.tile.success {
+    animation: none;
+    --tile-color: var(--success) !important;
+    color: #101012 !important;
+    --shadow-color: var(--success-dark) !important;
+}
+
+.tile.success::before,
+.tile.success span {
+    animation: floatLoopFace 0.7s ease-in-out infinite;
+    animation-delay: inherit;
+}
+
+.tile.success::after {
+    animation: floatLoopShadow 0.7s ease-in-out infinite;
+    animation-delay: inherit;
+}
+
+.tile.fail {
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    --tile-color: var(--danger) !important;
+    color: #101012 !important;
+    --shadow-color: var(--danger-dark) !important;
+}
+
+.tile.draw {
+    --tile-color: var(--warning) !important;
+    color: #101012 !important;
+    animation: none;
+    --shadow-color: var(--warning-dark) !important;
+}
+
+.tile.draw::before,
+.tile.draw span {
+    animation: floatLoopFace 1s ease-in-out infinite;
+    animation-delay: inherit;
+}
+
+.tile.draw::after {
+    animation: floatLoopShadow 1s ease-in-out infinite;
+    animation-delay: inherit;
+}
+
+/* Staggering for result tiles */
+.word-result-row .tile:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.word-result-row .tile:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.word-result-row .tile:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.word-result-row .tile:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.word-result-row .tile:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+.word-result-row .tile:nth-child(6) {
+    animation-delay: 0.5s;
+}
+
+.word-result-row .tile:nth-child(7) {
+    animation-delay: 0.6s;
+}
+
+.word-result-row .tile:nth-child(8) {
+    animation-delay: 0.7s;
+}
+
+.word-result-row .tile:nth-child(9) {
+    animation-delay: 0.8s;
+}
+
+.word-result-row .tile:nth-child(10) {
+    animation-delay: 0.9s;
+}
+
+/* Apply same delays to pseudo-elements */
+/* Removed ::after animation delays */
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#result-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex-grow: 1;
+    position: relative;
+    z-index: 20;
+    opacity: 0;
+    animation: fadeInScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    margin-top: -20px;
+}
+
+.result-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.res-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+#res-title {
+    font-size: 32px;
+    font-weight: 500;
+    margin: 0;
+    color: white;
+    text-align: center;
+}
+
+.res-subtitle {
+    font-size: 16px;
+    color: #FFFFFF;
+    margin-bottom: 16px;
+    margin-top: 24px;
+    text-align: center;
+}
+
+.game-footer {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+#toast {
+    position: fixed;
+    bottom: 104px;
+    /* 32px (bottom pad) + 56px (btn) + 16px (margin) */
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: white;
+    font-weight: 500;
+    font-size: 16px;
+    z-index: 5000;
+    display: none;
+    box-shadow: none;
+    pointer-events: none;
+    text-align: center;
+    width: 100%;
+}
+
+#game-status-message {
+    position: fixed;
+    bottom: 88px;
+    /* Start lower */
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    width: 100%;
+    z-index: 4000;
+    opacity: 0;
+    transition: opacity 0.3s, bottom 0.3s ease-out;
+    pointer-events: none;
+}
+
+#game-status-message.visible {
+    opacity: 1;
+    bottom: 104px;
+    /* 32px (bottom pad) + 56px (btn) + 16px (margin) */
+}
+
+/* Rive Animation Canvas */
+#rive-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    /* Behind everything */
+    pointer-events: none;
+    /* Don't block clicks */
+    opacity: 0.5;
+    /* Subtle background */
+}
+
+/* Mute Button */
+#btn-mute {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    z-index: 6000;
+    display: none;
+    /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+#btn-mute:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Flying Back Animation */
+.tile.flying-back {
+    position: fixed;
+    z-index: 9999;
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    pointer-events: none;
+}
