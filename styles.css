@@ -1167,6 +1167,19 @@ input[type="text"]:focus {
     animation-delay: 0.7s;
 }
 
+.proverb-highlight {
+    color: var(--success);
+    font-weight: bold;
+}
+
+.tile.blue {
+    background: #00B4D8;
+    /* Light blue from design */
+    border-color: #0096C7;
+    color: white;
+    box-shadow: 0 4px 0 #0077B6;
+}
+
 .word-result-row .tile:nth-child(9) {
     animation-delay: 0.8s;
 }

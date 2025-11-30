@@ -35,7 +35,7 @@ const state = {
 };
 
 // --- Sound Manager ---
-// --- Sound Manager (Web Audio API) ---
+// --- Sound Manager (Hybrid: Web Audio + Fallback) ---
 const soundManager = {
     audioCtx: null,
     buffers: {},
@@ -51,54 +51,90 @@ const soundManager = {
     },
     muted: false,
     initialized: false,
+    fallback: false, // Set to true if Web Audio fails
 
     init() {
         if (this.initialized) return;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        this.audioCtx = new AudioContext();
-        this.loadSounds();
-        this.initialized = true;
 
-        // Unlock audio on first interaction (mobile fix)
-        const unlock = () => {
-            if (this.audioCtx.state === 'suspended') {
-                this.audioCtx.resume();
-            }
-            document.removeEventListener('touchstart', unlock);
-            document.removeEventListener('click', unlock);
-        };
-        document.addEventListener('touchstart', unlock, { once: true });
-        document.addEventListener('click', unlock, { once: true });
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) throw new Error("Web Audio API not supported");
+
+            this.audioCtx = new AudioContext();
+            this.loadSounds();
+            console.log("SoundManager: Web Audio initialized");
+
+            // Unlock audio on first interaction
+            const unlock = () => {
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume().then(() => console.log("SoundManager: AudioContext resumed"));
+                }
+                document.removeEventListener('touchstart', unlock);
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('keydown', unlock);
+            };
+            document.addEventListener('touchstart', unlock, { once: true });
+            document.addEventListener('click', unlock, { once: true });
+            document.addEventListener('keydown', unlock, { once: true });
+
+        } catch (e) {
+            console.warn("SoundManager: Web Audio failed, using fallback.", e);
+            this.fallback = true;
+        }
+
+        this.initialized = true;
     },
 
     async loadSounds() {
+        if (this.fallback) return;
+
         for (const [name, path] of Object.entries(this.soundFiles)) {
             try {
                 const response = await fetch(path);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const arrayBuffer = await response.arrayBuffer();
                 const audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
                 this.buffers[name] = audioBuffer;
+                // console.log(`SoundManager: Loaded ${name}`);
             } catch (e) {
-                console.error(`Error loading sound ${name}:`, e);
+                console.error(`SoundManager: Error loading ${name}, switching to fallback for this sound.`, e);
+                // We could set global fallback, or just handle this sound gracefully.
+                // For simplicity, if one fails, we might as well use fallback for reliability, 
+                // or just let 'play' handle missing buffers.
             }
         }
     },
 
     play(name) {
-        if (this.muted || !this.buffers[name] || !this.audioCtx) return;
+        if (this.muted) return;
 
-        // Create source
-        const source = this.audioCtx.createBufferSource();
-        source.buffer = this.buffers[name];
+        // Fallback or missing buffer -> Use HTML5 Audio
+        if (this.fallback || (this.audioCtx && !this.buffers[name])) {
+            // console.log(`SoundManager: Playing ${name} (Fallback)`);
+            const audio = new Audio(this.soundFiles[name]);
+            audio.volume = 0.5;
+            audio.play().catch(e => console.warn("Audio play failed:", e));
+            return;
+        }
 
-        // Create gain node for volume
-        const gainNode = this.audioCtx.createGain();
-        gainNode.gain.value = 0.5; // Default volume
+        if (!this.audioCtx) return;
 
-        source.connect(gainNode);
-        gainNode.connect(this.audioCtx.destination);
+        try {
+            // Create source
+            const source = this.audioCtx.createBufferSource();
+            source.buffer = this.buffers[name];
 
-        source.start(0);
+            // Create gain node for volume
+            const gainNode = this.audioCtx.createGain();
+            gainNode.gain.value = 0.5; // Default volume
+
+            source.connect(gainNode);
+            gainNode.connect(this.audioCtx.destination);
+
+            source.start(0);
+        } catch (e) {
+            console.error("SoundManager: Play error", e);
+        }
     },
 
     toggleMute() {
@@ -176,6 +212,8 @@ function startGameUI() {
 
 function hostGameLogic() {
     let letters = [];
+
+    // Random generation (Reverted to original logic)
     const numVowels = Math.random() > 0.5 ? 4 : 5;
     for (let i = 0; i < numVowels; i++) letters.push(randChar(VOWEL_BAG));
 
@@ -186,6 +224,8 @@ function hostGameLogic() {
     for (let i = 0; i < numConsonants - 3; i++) letters.push(randChar(CONSONANT_BAG));
 
     letters.sort(() => Math.random() - 0.5);
+    state.secretWord = null; // No secret word
+
     startRound(letters);
     if (state.mode === 'MULTI') sendData({ type: 'NEW_GAME', letters: letters });
 }
@@ -787,8 +827,81 @@ async function validateWord() {
 
         if (state.mode === 'SOLO') {
             animateSuccessAndClear(myTiles);
-            showGameStatus("👏 ¡Palabra correcta!", 2000);
-            btn.innerText = "¡Correcto!";
+
+            // Check for proverbs
+            let proverb = null;
+            let definition = null;
+
+            // Helper to extract proverb from text
+            const extractProverb = (text) => {
+                const refranesMatch = text.match(/=== Refranes ===\n([\s\S]*?)(?:\n==|$)/);
+                if (refranesMatch) {
+                    const lines = refranesMatch[1].split('\n').filter(l => l.trim().length > 0);
+                    if (lines.length > 0) {
+                        return lines[0].replace(/^[*:]\s*/, '').trim();
+                    }
+                }
+                return null;
+            };
+
+            // Helper to extract definition
+            const extractDefinition = (text) => {
+                // Try to find the first numbered definition "1 ..."
+                const defMatch = text.match(/\n1\s+(.*)/);
+                if (defMatch) return defMatch[1];
+
+                // Fallback: finding the first line after a subtitle that isn't empty
+                // This is a bit heuristic but works for many simple extracts
+                const lines = text.split('\n');
+                let capture = false;
+                for (let line of lines) {
+                    if (line.startsWith('===') && !line.startsWith('=== Refranes') && !line.startsWith('=== Etimolog')) {
+                        capture = true;
+                        continue;
+                    }
+                    if (capture && line.trim().length > 0 && !line.startsWith('=')) {
+                        // Avoid "Ambit" or "Scope" lines if possible, but hard to distinguish without more parsing
+                        return line.trim();
+                    }
+                }
+                return null;
+            };
+
+            if (validPage.extract) {
+                proverb = extractProverb(validPage.extract);
+
+                // If no proverb found, check if it's a conjugated verb and look up the infinitive
+                if (!proverb) {
+                    // Regex to find "del verbo X" or "de X" in definitions like "Forma verbal..."
+                    // Example: "Tercera persona... del presente de indicativo de madrugar."
+                    const lemmaMatch = validPage.extract.match(/(?:del verbo|de|del)\s+([a-záéíóúñ]+)(?:\.|,|\s|$)/i);
+
+                    // We only try this if the extract mentions "Forma verbal" or looks like a conjugation definition
+                    if (lemmaMatch && (validPage.extract.includes('Forma verbal') || validPage.extract.includes('persona'))) {
+                        const lemma = lemmaMatch[1];
+                        if (lemma && lemma !== wordStr.toLowerCase()) {
+                            try {
+                                const resLemma = await fetch(`https://es.wiktionary.org/w/api.php?action=query&titles=${lemma}&prop=extracts&explaintext&format=json&origin=*`);
+                                const dataLemma = await resLemma.json();
+                                const pagesLemma = dataLemma.query.pages;
+                                if (Object.keys(pagesLemma)[0] !== "-1") {
+                                    const pageLemma = Object.values(pagesLemma)[0];
+                                    if (pageLemma.extract) {
+                                        proverb = extractProverb(pageLemma.extract);
+                                    }
+                                }
+                            } catch (err) {
+                                console.log("Error fetching lemma:", err);
+                            }
+                        }
+                    }
+                }
+
+                // If still no proverb, try definition
+                if (!proverb) {
+                    definition = extractDefinition(validPage.extract);
+                }
+            }
 
             state.myScore += wordStr.length;
             document.getElementById('score-p1').innerText = state.myScore;
@@ -796,9 +909,18 @@ async function validateWord() {
             setTimeout(() => document.getElementById('score-p1').classList.add('pop'), 50);
             setTimeout(() => document.getElementById('score-p1').classList.remove('pop'), 350);
 
-            setTimeout(() => {
-                hostGameLogic(); // Start new round directly
-            }, 2000);
+            if (proverb) {
+                showSoloResult(wordStr, proverb, 'proverb');
+            } else if (definition) {
+                showSoloResult(wordStr, definition, 'definition');
+            } else {
+                // Auto-restart if nothing found (rare)
+                showGameStatus("👏 ¡Palabra correcta!", 2000);
+                btn.innerText = "¡Correcto!";
+                setTimeout(() => {
+                    hostGameLogic(); // Start new round directly
+                }, 2000);
+            }
             return;
         }
         submitWord(false, validPage.title); // Use correct title (with accents)
@@ -1267,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function showSoloResult(word, definition) {
+function showSoloResult(word, text, type) {
     document.getElementById('game-active-area').classList.add('hidden');
     document.getElementById('result-panel').classList.remove('hidden');
 
@@ -1281,36 +1403,27 @@ function showSoloResult(word, definition) {
     const oppContainer = document.getElementById('res-opp-word');
 
     // Reset visibility
-    [icon, title, subtitle].forEach(el => el.style.opacity = '1');
+    // Hide icon and title in Solo mode as requested
+    icon.style.display = 'none';
+    title.style.display = 'none';
+
+    subtitle.style.opacity = '1';
     myContainer.style.display = 'inline-flex';
     oppContainer.style.display = 'none'; // Hide opponent container
 
-    icon.innerText = "🤓";
-    title.innerText = "¡Palabra curiosa!";
-
-    // Clean definition
-    let defText = definition || "Definición no disponible.";
-
-    // Try to extract the first definition (starting with "1")
-    // Regex looks for "1 " or "1\n" followed by text
-    const match = defText.match(/(?:^|\n)1\s+(?:[^\n]+\n)?([^\n]+)/);
-    if (match && match[1]) {
-        defText = match[1];
+    if (type === 'proverb') {
+        // Highlight the word in the proverb if possible
+        const regex = new RegExp(`(${word})`, 'gi');
+        const highlightedText = text.replace(regex, '<span class="proverb-highlight">$1</span>');
+        subtitle.innerHTML = highlightedText;
+        subtitle.style.fontStyle = "italic";
     } else {
-        // Fallback: Remove headers (== ... ==) and take first non-empty line that isn't a header
-        const lines = defText.split('\n').filter(l => l.trim() && !l.startsWith('='));
-        if (lines.length > 0) {
-            // Skip etymology if it's the first line (often starts with "Del")
-            if (lines[0].startsWith('Del ') && lines.length > 1) defText = lines[1];
-            else defText = lines[0];
-        }
+        subtitle.innerText = text; // Plain text for definition
+        subtitle.style.fontStyle = "normal";
     }
 
-    if (defText.length > 150) defText = defText.substring(0, 150) + "...";
-
-    subtitle.innerText = defText;
-    subtitle.style.fontSize = "18px";
-    subtitle.style.lineHeight = "1.4";
+    subtitle.style.fontSize = "20px";
+    subtitle.style.lineHeight = "1.5";
     subtitle.style.padding = "0 20px";
 
     renderResultTiles('res-my-word', word, 'success');
