@@ -35,30 +35,70 @@ const state = {
 };
 
 // --- Sound Manager ---
+// --- Sound Manager (Web Audio API) ---
 const soundManager = {
-    sounds: {
-        pop: new Audio('Recursos/pop.mp3'),
-        slide: new Audio('Recursos/slide.mp3'),
-        snap: new Audio('Recursos/snap.mp3'),
-        win: new Audio('Recursos/win.mp3'),
-        lose: new Audio('Recursos/lose.mp3'),
-        validate: new Audio('Recursos/validate.mp3'),
-        wrong: new Audio('Recursos/wrong.mp3'),
-        draw: new Audio('Recursos/draw.mp3')
+    audioCtx: null,
+    buffers: {},
+    soundFiles: {
+        pop: 'Recursos/pop.mp3',
+        slide: 'Recursos/slide.mp3',
+        snap: 'Recursos/snap.mp3',
+        win: 'Recursos/win.mp3',
+        lose: 'Recursos/lose.mp3',
+        validate: 'Recursos/validate.mp3',
+        wrong: 'Recursos/wrong.mp3',
+        draw: 'Recursos/draw.mp3'
     },
     muted: false,
+    initialized: false,
+
+    init() {
+        if (this.initialized) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContext();
+        this.loadSounds();
+        this.initialized = true;
+
+        // Unlock audio on first interaction (mobile fix)
+        const unlock = () => {
+            if (this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+        };
+        document.addEventListener('touchstart', unlock, { once: true });
+        document.addEventListener('click', unlock, { once: true });
+    },
+
+    async loadSounds() {
+        for (const [name, path] of Object.entries(this.soundFiles)) {
+            try {
+                const response = await fetch(path);
+                const arrayBuffer = await response.arrayBuffer();
+                const audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
+                this.buffers[name] = audioBuffer;
+            } catch (e) {
+                console.error(`Error loading sound ${name}:`, e);
+            }
+        }
+    },
 
     play(name) {
-        if (this.muted || !this.sounds[name]) return;
+        if (this.muted || !this.buffers[name] || !this.audioCtx) return;
 
-        // Clone node to allow overlapping sounds (rapid fire)
-        const sound = this.sounds[name].cloneNode();
-        sound.volume = 0.5; // Default volume
+        // Create source
+        const source = this.audioCtx.createBufferSource();
+        source.buffer = this.buffers[name];
 
-        sound.play().catch(e => {
-            // Auto-play policy might block this until first interaction
-            console.log('Audio play failed (user interaction needed):', e);
-        });
+        // Create gain node for volume
+        const gainNode = this.audioCtx.createGain();
+        gainNode.gain.value = 0.5; // Default volume
+
+        source.connect(gainNode);
+        gainNode.connect(this.audioCtx.destination);
+
+        source.start(0);
     },
 
     toggleMute() {
@@ -66,6 +106,9 @@ const soundManager = {
         return this.muted;
     }
 };
+
+// Initialize immediately to attach unlock listeners
+soundManager.init();
 let peer, conn, timerId;
 
 function showScreen(id) {
@@ -1061,12 +1104,64 @@ function initPeer() {
         showToast("Error: " + (err.type === 'peer-unavailable' ? 'Rival no encontrado' : err.type));
     });
 }
-function joinGame() {
+async function joinGame() {
     const code = document.getElementById('friend-code').value.trim();
     if (!code) return showToast("Introduce un código");
+
     state.role = 'GUEST';
-    // showToast("Conectando..."); // Removed to avoid overlap
-    setupConn(peer.connect(code));
+    const btn = document.querySelector('#screen-connect .btn-full'); // Assuming there's a button here, or we use the input action
+    // Note: The button calling this is actually "O introduce aquí el suyo" input enter or similar? 
+    // Wait, the UI has an input and likely a button or just enter. 
+    // Looking at index.html (from memory/context), there isn't a dedicated "Join" button next to the input, 
+    // but usually there is one or the input triggers it. 
+    // Let's assume the user clicks a button or hits enter.
+
+    // Retry Logic
+    let attempts = 0;
+    const maxAttempts = 3;
+    let connected = false;
+
+    while (attempts < maxAttempts && !connected) {
+        attempts++;
+        showToast(attempts > 1 ? `Reintentando (${attempts}/${maxAttempts})...` : "Conectando...");
+
+        try {
+            await new Promise((resolve, reject) => {
+                const conn = peer.connect(code, { reliable: true });
+
+                const timeout = setTimeout(() => {
+                    conn.close();
+                    reject(new Error("Timeout"));
+                }, 4000); // 4s timeout
+
+                conn.on('open', () => {
+                    clearTimeout(timeout);
+                    setupConn(conn);
+                    resolve();
+                });
+
+                conn.on('error', (err) => {
+                    clearTimeout(timeout);
+                    reject(err);
+                });
+
+                // Also handle immediate close if it happens
+                conn.on('close', () => {
+                    // If it closes before opening, it's a fail
+                    // But we can't easily distinguish "closed" from "just closed".
+                    // We rely on timeout if it doesn't open.
+                });
+            });
+            connected = true;
+        } catch (e) {
+            console.log(`Connection attempt ${attempts} failed:`, e);
+            await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
+        }
+    }
+
+    if (!connected) {
+        showToast("❌ No se pudo conectar. Verifica el código.");
+    }
 }
 function setupConn(c) {
     conn = c;
